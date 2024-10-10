@@ -246,7 +246,7 @@ BOOTSTRAP
   color: var(--black-matte-color);
   outline: none;
   text-decoration: none;
-  box-shadow: 130px 0 0 var(--third-color) inset;
+  box-shadow: 150px 0 0 var(--third-color) inset;
 }
 
 

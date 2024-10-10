@@ -94,7 +94,9 @@ function App(props) {
             </div>
           </div>
         </nav>
-        <Inner {...props} />
+        <main>
+          <Inner {...props} />
+        </main>
       </div>
     </Router>
   );
