@@ -94,17 +94,17 @@ function App(props) {
             </div>
           </div>
         </nav>
-        <Inner />
+        <Inner {...props} />
       </div>
     </Router>
   );
 }
 
 
-function Inner() {
+function Inner(props) {
   return (
-    <Routes location={useLocation()}>
-      <Route exact path="/auth/login" element={<CourseView></CourseView>} />
+    <Routes location={useLocation()} {...props}>
+      <Route exact path="/auth/login" element={<CourseView {...props} location={useLocation()}></CourseView>} />
       <Route path="*" element={<Navigate to={"/auth/login"} replace></Navigate>} />
     </Routes>
   )
