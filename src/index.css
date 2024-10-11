@@ -5,6 +5,7 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-color: var(--background-color);
 }
 
 code {
@@ -16,7 +17,9 @@ code {
 :root {
   --primary-color: #5c8c74;
   --secondary-color: #dbd2b2;
+  --secondary-color-pastel: #efefe2;
   --third-color: #8d8b87;
+
 
   --off-white-color: #FAF9F6;
   --black-matte-color: #262224;
@@ -28,4 +31,6 @@ code {
 
   --button-primary-color: #5c8c74;
   --button-secondary-color: #dbd2b2;
+
+  --background-color: #edf0f2;
 }

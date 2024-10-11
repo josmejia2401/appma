@@ -4,6 +4,17 @@
     padding-bottom: 35px;
 }
 
+@media (max-width: 575px) {
+
+    .slider-area {
+        background-image: url(../../../assets/banner/banner1.png);
+        background-color: var(--primary-color);
+        background-position: center;
+        background-repeat: no-repeat;
+        background-size: cover;
+    }
+}
+
 .banner-phone-image img {
     width: 100%;
     padding-top: 0px;
@@ -98,68 +109,30 @@
 
 
 .services-area {
-    margin-top: -100px
+    width: 100%;
+    margin-top: 15px;
 }
 
-.services-area.services-area2 {
-    margin-top: 0
-}
 
 .services-area .single-services {
     display: flex;
-    box-shadow: 0px 25px 60px rgba(66, 85, 164, 0.06);
-    padding: 29px 24px;
+    box-shadow: 0px 1px 1px var(--off-white-color);
+    padding: 18px 18px;
     border-radius: 20px;
-    background: #fff
+    background: var(--off-white-color);
+    margin-top: 5px;
 }
 
-@media only screen and (min-width: 992px) and (max-width: 1199px) {
-    .services-area .single-services {
-        padding: 18px 14px
-    }
-}
-
-@media (max-width: 575px) {
-    .services-area .single-services {
-        padding: 18px 14px
-    }
-}
-
-.services-area .single-services .features-icon {
-    position: relative;
-    top: 8px
-}
-
-.services-area .single-services .features-icon img {
-    display: block
-}
-
-.services-area .single-services .features-caption {
-    padding-left: 19px
-}
-
-.services-area .single-services .features-caption h3 {
+.services-title {
     font-size: 20px;
     line-height: 1.2;
-    margin-bottom: 10px;
-    font-weight: 700
+    margin-bottom: 5px;
+    font-weight: 700;
 }
 
-.services-area .single-services .features-caption p {
+.services-subtitle {
     font-size: 17px;
     line-height: 1.5;
-    color: #4255A4;
-    margin-bottom: 0
-}
-
-@media only screen and (min-width: 992px) and (max-width: 1199px) {
-    .services-area .single-services .features-caption p {
-        font-size: 15px
-    }
-}
-
-@media (max-width: 575px) {
-    .services-area .single-services .features-caption p {
-        font-size: 15px
-    }
+    color: var(--black-matte-color);
+    margin-bottom: 0;
 }

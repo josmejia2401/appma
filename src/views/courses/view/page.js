@@ -94,7 +94,7 @@ class Page extends React.Component {
                 <section className="slider-area">
                     <div className="container align-items-center">
                         <div className="row">
-                            <div className="col-xl-6 col-lg-7 col-md-12">
+                            <div className="col-xl-7 col-lg-7 col-md-12">
                                 <div className="banner-slider">
                                     <h1 className='banner-title'>Plataforma<br /> para servicios terapéuticos y refuerzos acádemicos</h1>
                                     <p className='banner-subtitle'>Refuerzos escolares: Su objetivo es complementar y mejorar el rendimiento académico en el aula.</p>
@@ -102,7 +102,7 @@ class Page extends React.Component {
                                     <button type="button" className="btn btn-lg button-secondary banner-button">Unirme</button>
                                 </div>
                             </div>
-                            <div className="col-xl-6 col-lg-7 col-md-12">
+                            <div className="col-xl-5 col-lg-5 col-md-12 d-none d-lg-block d-md-none">
                                 <div className="banner-phone-image"> <img src={banner1} /> </div>
                             </div>
                         </div>
@@ -111,36 +111,35 @@ class Page extends React.Component {
                 <div className="services-area">
                     <div className="container">
                         <div className="row justify-content-sm-center">
-                            <div className="col-lg-4 col-md-6 col-sm-8">
+                            <div className="col-lg-3 col-md-3 col-sm-12">
                                 <div className="single-services mb-30">
-                                    <div className="features-icon">
-                                        <img src="assets/img/icon/icon1.svg" alt="" />
-                                    </div>
                                     <div className="features-caption">
-                                        <h3>60+ UX courses</h3>
-                                        <p>The automated process all your website tasks.</p>
+                                        <h3 className='services-title'>Refuerzos Educativos</h3>
+                                        <p className='services-subtitle'>Apoyo académico personalizado para mejorar el rendimiento escolar.</p>
                                     </div>
                                 </div>
                             </div>
-                            <div className="col-lg-4 col-md-6 col-sm-8">
+                            <div className="col-lg-3 col-md-3 col-sm-12">
                                 <div className="single-services mb-30">
-                                    <div className="features-icon">
-                                        <img src="assets/img/icon/icon2.svg" alt="" />
-                                    </div>
                                     <div className="features-caption">
-                                        <h3>Expert instructors</h3>
-                                        <p>The automated process all your website tasks.</p>
+                                        <h3 className='services-title'>Terapias a Domicilio</h3>
+                                        <p className='services-subtitle'>Servicios de fisioterapia y fonoaudiología en la comodidad de tu hogar.</p>
                                     </div>
                                 </div>
                             </div>
-                            <div className="col-lg-4 col-md-6 col-sm-8">
+                            <div className="col-lg-3 col-md-3 col-sm-12">
                                 <div className="single-services mb-30">
-                                    <div className="features-icon">
-                                        <img src="assets/img/icon/icon3.svg" alt="" />
-                                    </div>
                                     <div className="features-caption">
-                                        <h3>Life time access</h3>
-                                        <p>The automated process all your website tasks.</p>
+                                        <h3 className='services-title'>Clases en Línea</h3>
+                                        <p className='services-subtitle'>Refuerzos educativos y terapias disponibles en formato virtual.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="col-lg-3 col-md-3 col-sm-12">
+                                <div className="single-services mb-30">
+                                    <div className="features-caption">
+                                        <h3 className='services-title'>Fisioterapia</h3>
+                                        <p className='services-subtitle'>Terapias físicas para rehabilitación y mejora de la movilidad.</p>
                                     </div>
                                 </div>
                             </div>
