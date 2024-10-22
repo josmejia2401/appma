@@ -1,195 +1,41 @@
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+#mainNav {
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+  background-color: #fff;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+#mainNav .navbar-brand {
+  font-family: "Kanit", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-
-  to {
-    transform: rotate(360deg);
-  }
+#mainNav .navbar-brand:hover,
+#mainNav .navbar-brand:active {
+  color: #2937f0;
 }
 
-
-
-
-
-
-
-
-
-
-
-.preloader {
-  background-color: var(--off-white-color);
-  width: 100%;
-  height: 100%;
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 999999;
-  margin: 0 auto
+#mainNav .navbar-toggler {
+  font-size: 0.875rem;
+  padding: 0.75rem 1rem;
+  color: #212529;
 }
 
-.preloader .preloader-circle {
-  width: 100px;
-  height: 100px;
-  position: relative;
-  border-style: solid;
-  border-width: 1px;
-  border-top-color: transparent;
-  border-bottom-color: transparent;
-  border-left-color: transparent;
-  border-right-color: transparent;
-  z-index: 10;
-  border-radius: 50%;
-  -webkit-box-shadow: 0 1px 5px 0 rgba(35, 181, 185, 0.15);
-  box-shadow: 0 1px 5px 0 rgba(35, 181, 185, 0.15);
-  background-color: var(--off-white-color);
+#mainNav .navbar-nav .nav-item .nav-link {
+  color: #212529;
 }
 
-.preloader .preloader-img {
-  position: absolute;
-  top: 50%;
-  z-index: 200;
-  left: 0;
-  right: 0;
-  margin: 0 auto;
-  text-align: center;
-  display: inline-block;
-  -webkit-transform: translateY(-50%);
-  -ms-transform: translateY(-50%);
-  transform: translateY(-50%);
-  padding-top: 6px;
+#mainNav .navbar-nav .nav-item .nav-link:hover {
+  color: #6c757d;
 }
 
-.preloader .preloader-img img {
-  max-width: 55px
-}
-
-/**
-
-BOOTSTRAP
-
-// Small devices (landscape phones, 576px and up)
-@media (min-width: 576px) { ... }
-
-// Medium devices (tablets, 768px and up)
-@media (min-width: 768px) { ... }
-
-// Large devices (desktops, 992px and up)
-@media (min-width: 992px) { ... }
-
-// Extra large devices (large desktops, 1200px and up)
-@media (min-width: 1200px) { ... }
-**/
-
-.navbar {
-  height: 100px;
-  padding-left: 30px;
-  padding-right: 30px;
-  background-color: var(--primary-color);
-  background: linear-gradient(to bottom, var(--navbar-color) 0%, var(--navbar-secondary-color) 100%);
-}
-
-@media only screen and (min-width: 1200px) {
-  .navbar {
-    padding-left: 80px;
-    padding-right: 80px;
-  }
-}
-
-@media only screen and (max-width: 992px) {
-  .navbar {
-    height: auto;
-  }
-}
-
-.dropdown:hover>.dropdown-menu {
-  display: block;
-}
-
-.dropdown>.dropdown-toggle:active {
-  /*Without this, clicking will make it sticky*/
-  pointer-events: none;
-}
-
-
-.nav-item {
-  margin: 3px 8px;
-  align-self: center;
-}
-
-
-.active {
-  color: var(--navbarlink-active-color) !important;
-  font-weight: bold;
-  font-size: 20px !important;
-}
-
-.nav-link {
-  color: var(--off-white-color);
-  font-weight: bold;
-  padding: 39px 2px;
-  display: block;
-  font-size: 16px;
-  -webkit-transition: .3s;
-  -moz-transition: .3s;
-  -o-transition: .3s;
-  transition: .3s;
-  text-transform: capitalize;
-}
-
-.nav-link:hover {
-  color: var(--third-color);
-  outline: none;
-  text-decoration: none;
-}
-
-
-@media only screen and (max-width: 992px) {
-  .nav-link {
-    color: var(--off-white-color);
-    font-weight: bold;
-    padding: 5px;
-    display: block;
-    font-size: 16px;
-    transition: .3s;
-    text-transform: capitalize;
-  }
-}
-
-@media only screen and (min-width: 1200px) and (max-width: 1600px) {
-  .nav-link {
-    margin: 0 14px;
-  }
+#mainNav .navbar-nav .nav-item .nav-link.active {
+  color: #2937f0;
 }
 
 
 
-
-.navbar-brand {
-  color: var(--off-white-color);
-  outline: medium none;
-  font-size: 30px;
-  font-weight: bold;
-}
-
-.navbar-brand:hover {
-  color: var(--third-color);
-  outline: none;
-  text-decoration: none;
+.navbar-toggler:focus {
+  outline: unset;
+  box-shadow: unset;
 }
 
 
@@ -197,59 +43,3 @@ BOOTSTRAP
 
 
 
-
-
-
-.button-primary {
-  color: var(--off-white-color);
-  font-weight: 600;
-  display: block;
-  font-size: 16px;
-  text-transform: capitalize;
-  width: 100%;
-  transition-duration: 0.5s;
-  transition-timing-function: linear;
-  -webkit-transition-duration: 0.5s;
-  -webkit-transition-timing-function: linear;
-  background-color: var(--button-primary-color);
-  outline: none;
-  border: unset;
-  border-radius: 5px;
-}
-
-.button-primary:hover {
-  color: var(--black-matte-color);
-  outline: none;
-  text-decoration: none;
-  box-shadow: 130px 0 0 var(--third-color) inset;
-}
-
-
-.button-secondary {
-  color: var(--black-matte-color);
-  font-weight: 600;
-  display: block;
-  font-size: 16px;
-  text-transform: capitalize;
-  width: 100%;
-  transition-duration: 0.5s;
-  transition-timing-function: linear;
-  -webkit-transition-duration: 0.5s;
-  -webkit-transition-timing-function: linear;
-  background-color: var(--button-secondary-color);
-  outline: none;
-  border: unset;
-  border-radius: 5px;
-}
-
-.button-secondary:hover {
-  color: var(--black-matte-color);
-  outline: none;
-  text-decoration: none;
-  box-shadow: 150px 0 0 var(--third-color) inset;
-}
-
-
-.navbar-toggler {
-  background-color: var(--primary-color);
-}
