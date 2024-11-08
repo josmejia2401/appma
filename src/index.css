@@ -584,3 +584,8 @@ fieldset:disabled .btn {
 .fade {
   transition: opacity 0.15s linear;
 }
+
+.main-router {
+  width: 100vw;
+  height: 100vh;
+}

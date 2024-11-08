@@ -10,7 +10,8 @@
 
 #mainNav .navbar-brand:hover,
 #mainNav .navbar-brand:active {
-  color: #2937f0;
+  color: #6c757d;
+  font-weight: bold;
 }
 
 #mainNav .navbar-toggler {
@@ -49,10 +50,22 @@
 }
 
 
-.justify-content-center {
+.justify-content-center-spinner {
   position: absolute;
   left: 50%;
   top: 50%;
   -webkit-transform: translate(-50%, -50%);
   transform: translate(-50%, -50%);
+}
+
+/*
+https://colorhunt.co/palettes/pastel
+https://colorhunt.co/palette/ff8a8af4deb3f0eaaccce0ac
+*/
+.bg-primary {
+  background-color: #FF8A8A !important;
+}
+
+.text-bg-primary {
+  background-color: #FF8A8A !important;
 }

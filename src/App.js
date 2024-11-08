@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate, Link, useLocation } f
 //import logo from './logo.svg';
 import './App.css';
 
-import CourseView from '../src/views/courses/view';
+import AuthLoginView from '../src/views/auth/login'
 
 function App(props) {
   const [preloader, setPreloader] = React.useState(true);
@@ -30,14 +30,14 @@ function App(props) {
   }, []);
   return (
     <Router>
-      <div>
-        {preloader && <div className="d-flex justify-content-center">
+      <div className="main-router">
+        {preloader && <div className="d-flex justify-content-center-spinner">
           <div className="spinner-border" role="status">
             <span className="visually-hidden">Loading...</span>
           </div>
         </div>}
 
-        <nav className="navbar navbar-expand-lg navbar-light fixed-top shadow-sm" id="mainNav">
+        {/*<nav className="navbar navbar-expand-lg navbar-light fixed-top shadow-sm" id="mainNav">
           <div className="container px-5">
             <Link className="navbar-brand fw-bold">AppMa</Link>
             <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation"
@@ -60,9 +60,9 @@ function App(props) {
               </button>
             </div>
           </div>
-        </nav>
+        </nav>*/}
 
-        <main style={{ maxWidth: '1328px' }}>
+        <main>
           <Inner {...props} />
         </main>
       </div>
@@ -74,7 +74,7 @@ function App(props) {
 function Inner(props) {
   return (
     <Routes location={useLocation()} {...props}>
-      <Route exact path="/auth/login" element={<CourseView {...props} location={useLocation()}></CourseView>} />
+      <Route exact path="/auth/login" element={<AuthLoginView {...props} location={useLocation()}></AuthLoginView>} />
       <Route path="*" element={<Navigate to={"/auth/login"} replace></Navigate>} />
     </Routes>
   )
