@@ -28,7 +28,8 @@
 }
 
 #mainNav .navbar-nav .nav-item .nav-link.active {
-  color: #2937f0;
+  color: #6c757d;
+  font-weight: bold;
 }
 
 
@@ -43,3 +44,15 @@
 
 
 
+.spinner-border {
+  z-index: 9999 !important;
+}
+
+
+.justify-content-center {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  -webkit-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);
+}
