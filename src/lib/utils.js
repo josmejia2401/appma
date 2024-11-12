@@ -1,4 +1,6 @@
 import { Buffer } from "buffer";
+//const Buffer = require('buffer').Buffer;
+
 //window.Buffer = buffer.Buffer;
 
 export default class Utils {

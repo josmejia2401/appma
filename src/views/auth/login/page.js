@@ -1,6 +1,7 @@
 import * as React from 'react';
 import "./styles.css";
 import ButtonPrimary from '../../../components/button-primary';
+import { signIn } from '../../../services/auth.services';
 
 class Page extends React.Component {
 
@@ -30,7 +31,7 @@ class Page extends React.Component {
     defaultState() {
         return {
             loading: false,
-            data: [],
+            data: {},
             lastEvaluatedKey: undefined,
         };
     }
@@ -86,6 +87,11 @@ class Page extends React.Component {
             email: data.get('email'),
             password: data.get('password'),
         });
+
+        signIn({
+            username: data.get('email'),
+            password: data.get('password')
+        });
     };
 
     render() {
@@ -119,12 +125,12 @@ class Page extends React.Component {
                                             </div>
                                         </div>
                                     </div>
-                                    <form action="#!">
+                                    <form className="needs-validation" onSubmit={this.handleSubmit} noValidate>
                                         <div className="row gy-3 overflow-hidden">
                                             <div className="col-12">
                                                 <div className="form-floating mb-3">
-                                                    <input type="email" className="form-control" name="email" id="email" placeholder="name@example.com" required />
-                                                    <label for="email" className="form-label">Correo electrónico</label>
+                                                    <input type="text" className="form-control" name="username" id="username" placeholder="name@example.com" required />
+                                                    <label for="username" className="form-label">Usuario</label>
                                                 </div>
                                             </div>
                                             <div className="col-12">
@@ -143,7 +149,7 @@ class Page extends React.Component {
                                             </div>
                                             <div className="col-12">
                                                 <div className="d-grid">
-                                                    <ButtonPrimary text={'Iniciar ahora'}></ButtonPrimary>
+                                                    <ButtonPrimary text={'Iniciar ahora'} type={'submit'}></ButtonPrimary>
                                                 </div>
                                             </div>
                                         </div>
