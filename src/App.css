@@ -1,7 +1,7 @@
 #mainNav {
   padding-top: 1rem;
   padding-bottom: 1rem;
-  background-color: #fff;
+  background-color: var(--color-white);
 }
 
 #mainNav .navbar-brand {
@@ -10,26 +10,26 @@
 
 #mainNav .navbar-brand:hover,
 #mainNav .navbar-brand:active {
-  color: #6c757d;
+  color: var(--color-gray);
   font-weight: bold;
 }
 
 #mainNav .navbar-toggler {
   font-size: 0.875rem;
   padding: 0.75rem 1rem;
-  color: #212529;
+  color: var(--color-gray-900);
 }
 
 #mainNav .navbar-nav .nav-item .nav-link {
-  color: #212529;
+  color: var(--color-gray-900);
 }
 
 #mainNav .navbar-nav .nav-item .nav-link:hover {
-  color: #6c757d;
+  color: var(--color-gray);
 }
 
 #mainNav .navbar-nav .nav-item .nav-link.active {
-  color: #6c757d;
+  color: var(--color-gray);
   font-weight: bold;
 }
 
@@ -63,9 +63,9 @@ https://colorhunt.co/palettes/pastel
 https://colorhunt.co/palette/ff8a8af4deb3f0eaaccce0ac
 */
 .bg-primary {
-  background-color: #FF8A8A !important;
+  background-color: var(--color-orange-pastel) !important;
 }
 
 .text-bg-primary {
-  background-color: #FF8A8A !important;
+  background-color: var(--color-orange-pastel) !important;
 }

@@ -1,5 +1,6 @@
 import * as React from 'react';
 import "./styles.css";
+import ButtonPrimary from '../../../components/button-primary';
 
 class Page extends React.Component {
 
@@ -89,13 +90,13 @@ class Page extends React.Component {
 
     render() {
         return (
-            <section className="bg-primary d-flex" style={{ height: '100vh'}}>
+            <section className="bg-primary d-flex" style={{ height: '100vh' }}>
                 <div className="container d-flex justify-content-center">
                     <div className="row align-items-center">
                         <div className="col-12 col-md-6 col-xl-7">
                             <div className="d-flex justify-content-center text-bg-primary">
                                 <div className="col-12 col-xl-9">
-                                    <img className="img-fluid rounded mb-4" loading="lazy" src="./assets/img/bsb-logo-light.svg" width="245" height="80" alt="BootstrapBrain Logo" />
+                                    <img className="img-fluid rounded mb-4" loading="lazy" src="https://cdn-icons-png.flaticon.com/512/1576/1576782.png" width="245" height="80" alt="BootstrapBrain Logo" />
                                     <hr className="border-primary-subtle mb-4" />
                                     <h2 className="h1 mb-4">Registra tiempos y haz seguimiento a tus tareas y actividades.</h2>
                                     <p className="lead mb-5">Ahora puedes realizar análisis e informes en tiempo real.</p>
@@ -142,7 +143,7 @@ class Page extends React.Component {
                                             </div>
                                             <div className="col-12">
                                                 <div className="d-grid">
-                                                    <button className="btn btn-primary btn-lg" type="submit">Iniciar ahora</button>
+                                                    <ButtonPrimary text={'Iniciar ahora'}></ButtonPrimary>
                                                 </div>
                                             </div>
                                         </div>
