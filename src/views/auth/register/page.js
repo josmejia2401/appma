@@ -166,8 +166,8 @@ class Page extends React.Component {
                                     <div className="row">
                                         <div className="col-12">
                                             <div className="mb-4">
-                                                <h3>Iniciar sesión</h3>
-                                                <p>¿No tienes una cuenta? <Link to={'/auth/register'}>Registrate ahora</Link></p>
+                                                <h3>Registro de usuario</h3>
+                                                <p>¿Ya tienes una cuenta? <Link to={'/auth/login'}>Iniciar sesión</Link></p>
                                             </div>
                                         </div>
                                     </div>

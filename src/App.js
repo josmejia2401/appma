@@ -3,7 +3,9 @@ import { BrowserRouter as Router, Routes, Route, Navigate, Link, useLocation } f
 //import logo from './logo.svg';
 import './App.css';
 
-import AuthLoginView from '../src/views/auth/login'
+import AuthLoginView from '../src/views/auth/login';
+import AuthRegisterView from '../src/views/auth/register';
+
 
 function App(props) {
   const [preloader, setPreloader] = React.useState(true);
@@ -75,6 +77,8 @@ function Inner(props) {
   return (
     <Routes location={useLocation()} {...props}>
       <Route exact path="/auth/login" element={<AuthLoginView {...props} location={useLocation()}></AuthLoginView>} />
+      <Route exact path="/auth/register" element={<AuthRegisterView {...props} location={useLocation()}></AuthRegisterView>} />
+
       <Route path="*" element={<Navigate to={"/auth/login"} replace></Navigate>} />
     </Routes>
   )

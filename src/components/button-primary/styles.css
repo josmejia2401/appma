@@ -20,7 +20,7 @@
 button[disabled] {
     outline-color: var(--outline-color);
     border: none;
-    background-color: var(--color-primary);
+    background-color: var(--color-gray-600);
     color: var(--color-white);
 }
 
