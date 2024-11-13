@@ -1,10 +1,14 @@
 import * as React from "react";
-import { BrowserRouter as Router, Routes, Route, Navigate, Link, useLocation } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate, Link, useLocation, useNavigate } from "react-router-dom";
 //import logo from './logo.svg';
 import './App.css';
+import { isAuthenticated } from "./lib/auth";
 
 import AuthLoginView from '../src/views/auth/login';
 import AuthRegisterView from '../src/views/auth/register';
+
+import ProjectsView from '../src/views/projects/view';
+
 
 
 function App(props) {
@@ -21,13 +25,11 @@ function App(props) {
   }
   React.useEffect(() => {
     setCurrentPathName(window.location.pathname);
-    window.addEventListener('load', () => setPreloader(false));
-    /*const timeoutId = setTimeout(() => {
+    if (document.readyState === "complete") {
       setPreloader(false);
-    }, 2000);*/
-    return () => {
-      //clearTimeout(timeoutId);
-      window.removeEventListener('load', () => setPreloader(false))
+    } else {
+      window.addEventListener('load', () => setPreloader(false));
+      return () => document.removeEventListener('load', () => setPreloader(false));
     }
   }, []);
   return (
@@ -39,7 +41,7 @@ function App(props) {
           </div>
         </div>}
 
-        {/*<nav className="navbar navbar-expand-lg navbar-light fixed-top shadow-sm" id="mainNav">
+        {isAuthenticated() && <nav className="navbar navbar-expand-lg navbar-light fixed-top shadow-sm" id="mainNav">
           <div className="container px-5">
             <Link className="navbar-brand fw-bold">AppMa</Link>
             <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation"
@@ -50,7 +52,7 @@ function App(props) {
             <div className="collapse navbar-collapse" id="navbarResponsive">
               <ul className="navbar-nav ms-auto me-4 my-3 my-lg-0">
                 <li className="nav-item">
-                  <Link className={`${currentPathName === '/auth/login' ? 'active' : ''} nav-link me-lg-3`} to={"#features"}>Features</Link>
+                  <Link className={`${currentPathName === '/projects' ? 'active' : ''} nav-link me-lg-3`} to={"/projects"}>Proyectos</Link>
                 </li>
                 <Link className={`${currentPathName === '/auth/download' ? 'active' : ''} nav-link me-lg-3`} to={"#download"}>Download</Link>
               </ul>
@@ -62,7 +64,7 @@ function App(props) {
               </button>
             </div>
           </div>
-        </nav>*/}
+        </nav>}
 
         <main>
           <Inner {...props} />
@@ -76,8 +78,10 @@ function App(props) {
 function Inner(props) {
   return (
     <Routes location={useLocation()} {...props}>
-      <Route exact path="/auth/login" element={<AuthLoginView {...props} location={useLocation()}></AuthLoginView>} />
-      <Route exact path="/auth/register" element={<AuthRegisterView {...props} location={useLocation()}></AuthRegisterView>} />
+      <Route exact path="/auth/login" element={<AuthLoginView {...props} location={useLocation()} navigate={useNavigate()}></AuthLoginView>} />
+      <Route exact path="/auth/register" element={<AuthRegisterView {...props} location={useLocation()} navigate={useNavigate()}></AuthRegisterView>} />
+
+      <Route exact path="/projects" element={<ProjectsView {...props} location={useLocation()} navigate={useNavigate()}></ProjectsView>} />
 
       <Route path="*" element={<Navigate to={"/auth/login"} replace></Navigate>} />
     </Routes>

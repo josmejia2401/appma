@@ -3,7 +3,7 @@ export default class Storage {
     static PREFIX = "PSPC_";
 
     static set(key, value) {
-        return localStorage.setItem(`${Storage.PREFIX}${key}`, value);
+        window.localStorage.setItem(`${Storage.PREFIX}${key}`, value);
     }
 
     static get(key) {

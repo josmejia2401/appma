@@ -15,6 +15,8 @@ class Page extends React.Component {
         this.propagateState = this.propagateState.bind(this);
         this.updateState = this.updateState.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
+
+        this.goToHome = this.goToHome.bind(this);
     }
 
 
@@ -130,7 +132,7 @@ class Page extends React.Component {
             this.updateState({ loading: true, errorMessage: undefined });
             signIn({ username: data.username.value, password: data.password.value })
                 .then(response => {
-                    console.log("response", response);
+                    this.goToHome();
                 })
                 .catch(error => {
                     this.updateState({
@@ -140,7 +142,11 @@ class Page extends React.Component {
                 })
                 .finally(() => this.updateState({ loading: false }));
         }
-    };
+    }
+
+    goToHome() {
+        this.props.navigate("/projects");
+    }
 
     render() {
         return (
@@ -259,7 +265,7 @@ class Page extends React.Component {
                                     <div className="row">
                                         <div className="col-12">
                                             <div className="d-flex gap-2 gap-md-4 flex-column flex-md-row justify-content-md-end mt-4">
-                                                <a href="#!">Recordar contraseña</a>
+                                                <Link to={'/auth/login'}>Recordar contraseña</Link>
                                             </div>
                                         </div>
                                     </div>
@@ -267,12 +273,12 @@ class Page extends React.Component {
                                         <div className="col-12">
                                             <p className="mt-4 mb-4">O continúa con</p>
                                             <div className="d-flex gap-2 gap-sm-3 justify-content-centerX">
-                                                <a href="#!" className="btn btn-outline-danger bsb-btn-circle bsb-btn-circle-2xl">
+                                                <Link to={"#"} className="btn btn-outline-danger bsb-btn-circle bsb-btn-circle-2xl">
                                                     <i className="fa-brands fa-google"></i>
-                                                </a>
-                                                <a href="#!" className="btn btn-outline-primary bsb-btn-circle bsb-btn-circle-2xl">
+                                                </Link>
+                                                <Link to={"#"} className="btn btn-outline-primary bsb-btn-circle bsb-btn-circle-2xl">
                                                     <i className="fa-brands fa-facebook"></i>
-                                                </a>
+                                                </Link>
                                             </div>
                                         </div>
                                     </div>

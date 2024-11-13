@@ -1,7 +1,7 @@
 import * as React from 'react';
 import "./styles.css";
 import ButtonPrimary from '../../../components/button-primary';
-import { signIn } from '../../../services/auth.services';
+import { register } from '../../../services/users.services';
 import { Link } from 'react-router-dom';
 class Page extends React.Component {
 
@@ -29,7 +29,39 @@ class Page extends React.Component {
             loading: false,
             isFormValid: false,
             errorMessage: undefined,
+            successMessage: undefined,
             data: {
+                firstName: {
+                    value: '',
+                    errors: [],
+                    schema: {
+                        name: 'Nombres',
+                        required: true,
+                        minLength: 4,
+                        maxLength: 50,
+                    }
+                },
+                lastName: {
+                    value: '',
+                    errors: [],
+                    schema: {
+                        name: 'Apellidos',
+                        required: true,
+                        minLength: 4,
+                        maxLength: 50,
+                    }
+                },
+                email: {
+                    value: '',
+                    errors: [],
+                    schema: {
+                        name: 'Correo electrónico',
+                        required: true,
+                        minLength: 4,
+                        maxLength: 100,
+                        isEmail: true
+                    }
+                },
                 username: {
                     value: '',
                     errors: [],
@@ -50,14 +82,12 @@ class Page extends React.Component {
                         maxLength: 50,
                     }
                 },
-                rememberMe: {
+                termCond: {
                     value: true,
                     errors: [],
                     schema: {
-                        name: 'Mantener sesión',
-                        required: false,
-                        minLength: 4,
-                        maxLength: 50,
+                        name: 'Términos y condiciones',
+                        required: true
                     }
                 }
             },
@@ -77,7 +107,7 @@ class Page extends React.Component {
         const value = data[key].value;
         data[key].errors = [];
         if (schema.required === true) {
-            if (value === undefined || value === null || value === '') {
+            if (value === undefined || value === null || value === '' || !value) {
                 data[key].errors.push(`${schema.name} es requerido.`);
             }
         }
@@ -90,6 +120,15 @@ class Page extends React.Component {
             if (String(value).length > schema.maxLength) {
                 data[key].errors.push(`${schema.name} requiere una longitud máxima de ${schema.maxLength}.`);
             }
+        }
+        if (schema.isEmail !== undefined && schema.isEmail === true) {
+            if (!String(value)
+                .toLowerCase()
+                .match(
+                    /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|.(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+                )) {
+                    data[key].errors.push(`${schema.name} no es válido.`);
+                }
         }
         let isFormValid = true;
         const keys = Object.keys(data);
@@ -121,20 +160,25 @@ class Page extends React.Component {
             event.stopPropagation();
         }
         const { data, isFormValid } = this.state;
-        /*const formData = new FormData(event.currentTarget);
-        console.log({
-            email: formData.get('email'),
-            password: formData.get('password'),
-        });*/
         if (isFormValid === true) {
-            this.updateState({ loading: true, errorMessage: undefined });
-            signIn({ username: data.username.value, password: data.password.value })
+            this.updateState({ loading: true, errorMessage: undefined, successMessage: undefined });
+            register({
+                firstName: data.firstName.value,
+                lastName: data.lastName.value,
+                email: data.email.value,
+                username: data.username.value,
+                password: data.password.value
+            })
                 .then(response => {
                     console.log("response", response);
+                    this.updateState({
+                        successMessage: 'Registro exitoso!'
+                    });
                 })
                 .catch(error => {
                     this.updateState({
-                        errorMessage: error.message
+                        errorMessage: error.message,
+                        successMessage: undefined
                     });
                     console.error(error);
                 })
@@ -171,12 +215,93 @@ class Page extends React.Component {
                                             </div>
                                         </div>
                                     </div>
+                                    {this.state.successMessage && <div className="alert alert-success" role="alert">
+                                        <h5 className="alert-heading">EXITOSO</h5>
+                                        <p className='p-error'>{this.state.successMessage}</p>
+                                    </div>}
                                     {this.state.errorMessage && <div className="alert alert-danger" role="alert">
                                         <h5 className="alert-heading">ERROR</h5>
                                         <p className='p-error'>{this.state.errorMessage}</p>
                                     </div>}
                                     <form className="form needs-validation" onSubmit={this.handleSubmit} noValidate>
                                         <div className="row gy-3 overflow-hidden">
+
+                                            <div className="col-12">
+                                                <div className="form-floating mb-3">
+                                                    <input
+                                                        type="text"
+                                                        id="firstName"
+                                                        name="firstName"
+                                                        className="form-control"
+                                                        placeholder="Ingrese el nombre"
+                                                        required={true}
+                                                        value={this.state.data.firstName.value}
+                                                        onChange={(event) => this.setChangeInputEvent('firstName', event)}
+                                                        disabled={this.state.loading}
+                                                        autoComplete='off'
+                                                    />
+                                                    <label htmlFor="firstName" className="form-label">Nombres</label>
+                                                    <div
+                                                        className="invalid-feedback"
+                                                        style={{
+                                                            display: this.state.data.firstName.errors.length > 0 ? 'block' : 'none'
+                                                        }}>
+                                                        {this.state.data.firstName.errors[0]}
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div className="col-12">
+                                                <div className="form-floating mb-3">
+                                                    <input
+                                                        type="text"
+                                                        id="lastName"
+                                                        name="lastName"
+                                                        className="form-control"
+                                                        placeholder="Ingrese apellidos"
+                                                        required={true}
+                                                        value={this.state.data.lastName.value}
+                                                        onChange={(event) => this.setChangeInputEvent('lastName', event)}
+                                                        disabled={this.state.loading}
+                                                        autoComplete='off'
+                                                    />
+                                                    <label htmlFor="lastName" className="form-label">Apellidos</label>
+                                                    <div
+                                                        className="invalid-feedback"
+                                                        style={{
+                                                            display: this.state.data.lastName.errors.length > 0 ? 'block' : 'none'
+                                                        }}>
+                                                        {this.state.data.lastName.errors[0]}
+                                                    </div>
+                                                </div>
+                                            </div>
+
+
+                                            <div className="col-12">
+                                                <div className="form-floating mb-3">
+                                                    <input
+                                                        type="email"
+                                                        id="email"
+                                                        name="email"
+                                                        className="form-control"
+                                                        placeholder="Ingrese correo electrónico"
+                                                        required={true}
+                                                        value={this.state.data.email.value}
+                                                        onChange={(event) => this.setChangeInputEvent('email', event)}
+                                                        disabled={this.state.loading}
+                                                        autoComplete='off'
+                                                    />
+                                                    <label htmlFor="email" className="form-label">Correo electrónico</label>
+                                                    <div
+                                                        className="invalid-feedback"
+                                                        style={{
+                                                            display: this.state.data.email.errors.length > 0 ? 'block' : 'none'
+                                                        }}>
+                                                        {this.state.data.email.errors[0]}
+                                                    </div>
+                                                </div>
+                                            </div>
+
                                             <div className="col-12">
                                                 <div className="form-floating mb-3">
                                                     <input
@@ -233,12 +358,12 @@ class Page extends React.Component {
                                                     <input
                                                         className="form-check-input"
                                                         type="checkbox"
-                                                        defaultChecked={this.state.data.rememberMe.value}
-                                                        name="rememberMe"
-                                                        id="rememberMe"
+                                                        defaultChecked={this.state.data.termCond.value}
+                                                        name="termCond"
+                                                        id="termCond"
                                                     />
-                                                    <label className="form-check-label text-secondary" htmlFor="rememberMe">
-                                                        Mantener sesión
+                                                    <label className="form-check-label text-secondary" htmlFor="termCond">
+                                                        Aceptar términos y condiciones
                                                     </label>
                                                 </div>
                                             </div>
@@ -246,36 +371,16 @@ class Page extends React.Component {
                                             <div className="col-12">
                                                 <div className="d-grid">
                                                     <ButtonPrimary
-                                                        text={'Iniciar ahora'}
+                                                        text={'Registrarme ahora'}
                                                         type={'submit'}
                                                         disabled={this.state.isValidForm === false || this.state.loading}
                                                         showText={true}
                                                         loading={this.state.loading}
-                                                        textLoading={'Iniciando...'}></ButtonPrimary>
+                                                        textLoading={'Registrando...'}></ButtonPrimary>
                                                 </div>
                                             </div>
                                         </div>
                                     </form>
-                                    <div className="row">
-                                        <div className="col-12">
-                                            <div className="d-flex gap-2 gap-md-4 flex-column flex-md-row justify-content-md-end mt-4">
-                                                <a href="#!">Recordar contraseña</a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className="row">
-                                        <div className="col-12">
-                                            <p className="mt-4 mb-4">O continúa con</p>
-                                            <div className="d-flex gap-2 gap-sm-3 justify-content-centerX">
-                                                <a href="#!" className="btn btn-outline-danger bsb-btn-circle bsb-btn-circle-2xl">
-                                                    <i className="fa-brands fa-google"></i>
-                                                </a>
-                                                <a href="#!" className="btn btn-outline-primary bsb-btn-circle bsb-btn-circle-2xl">
-                                                    <i className="fa-brands fa-facebook"></i>
-                                                </a>
-                                            </div>
-                                        </div>
-                                    </div>
                                 </div>
                             </div>
                         </div>

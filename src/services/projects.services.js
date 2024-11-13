@@ -1,10 +1,10 @@
 import { axiosInstance } from './fetch.service.js'
 import api from './api.constants';
-import { buildAndThrowNewError, buildHeaders } from '../lib/token.js';
+import { buildAndThrowNewError, buildDefaultHeaders } from '../lib/auth.js';
 
 export const create = async (payload) => {
     try {
-        const authHeaders = buildHeaders();
+        const authHeaders = buildDefaultHeaders();
         const res = await axiosInstance.post(`${api.projects.create}`, payload, {
             headers: {
                 ...authHeaders
@@ -20,7 +20,7 @@ export const create = async (payload) => {
 
 export const find = async (id) => {
     try {
-        const authHeaders = buildHeaders();
+        const authHeaders = buildDefaultHeaders();
         const res = await axiosInstance.get(`${api.projects.find.replace(":id", id)}`, {
             headers: {
                 ...authHeaders
@@ -36,9 +36,8 @@ export const find = async (id) => {
 
 export const filter = async (payload) => {
     try {
-
         const urlParameters = payload && Object.keys(payload).length !== 0 ? `?${Object.entries(payload).map(e => e.join('=')).join('&')}` : '';
-        const authHeaders = buildHeaders();
+        const authHeaders = buildDefaultHeaders();
         const res = await axiosInstance.get(`${api.projects.filter}${urlParameters}`, {
             headers: {
                 ...authHeaders
@@ -55,7 +54,7 @@ export const filter = async (payload) => {
 
 export const update = async (id, payload) => {
     try {
-        const authHeaders = buildHeaders();
+        const authHeaders = buildDefaultHeaders();
         const res = await axiosInstance.put(`${api.projects.update.replace(":id", id)}`, payload, {
             headers: {
                 ...authHeaders
@@ -72,7 +71,7 @@ export const update = async (id, payload) => {
 
 export const del = async (id) => {
     try {
-        const authHeaders = buildHeaders();
+        const authHeaders = buildDefaultHeaders();
         const res = await axiosInstance.delete(`${api.projects.delete.replace(":id", id)}`, {
             headers: {
                 ...authHeaders
