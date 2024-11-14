@@ -1,11 +1,9 @@
 import * as React from 'react';
 import "./styles.css";
 import Utils from '../../../lib/utils';
-import Validator from '../validators/validator';
 import ButtonPrimary from '../../../components/button-primary';
 import ButtonSecondary from '../../../components/button-secondary';
 import { del } from '../../../services/projects.services';
-
 class LocalComponent extends React.Component {
 
     constructor(props) {
@@ -19,10 +17,8 @@ class LocalComponent extends React.Component {
         this.loadFirstData = this.loadFirstData.bind(this);
         this.loadData = this.loadData.bind(this);
 
-
         //own
-        this.doModifyAction = this.doModifyAction.bind(this);
-
+        this.handleSubmit = this.handleSubmit.bind(this);
     }
 
 
@@ -38,19 +34,61 @@ class LocalComponent extends React.Component {
     defaultState() {
         return {
             loading: false,
-            isValidForm: true,
-            errorMessage: '',
-            isSuccessfullyCreation: false,
+            isFormValid: false,
+            errorMessage: undefined,
+            successMessage: undefined,
             data: {
                 id: {
                     value: '',
-                    errors: []
+                    errors: [],
+                    schema: {
+                        name: 'Id',
+                        required: true,
+                        minLength: 1,
+                        maxLength: 100,
+                    }
                 },
                 name: {
                     value: '',
-                    errors: []
+                    errors: [],
+                    schema: {
+                        name: 'Nombre del proyecto',
+                        required: true,
+                        minLength: 1,
+                        maxLength: 100,
+                    }
                 },
-            }
+                description: {
+                    value: '',
+                    errors: [],
+                    schema: {
+                        name: 'Descripción',
+                        required: false,
+                        minLength: 0,
+                        maxLength: 250,
+                    }
+                },
+                status: {
+                    value: 1,
+                    errors: [],
+                    schema: {
+                        name: 'Estado',
+                        required: true,
+                        minLength: 0,
+                        maxLength: 9,
+                    }
+                },
+                createdAt: {
+                    value: 1,
+                    errors: [],
+                    schema: {
+                        name: 'Fecha de creación',
+                        required: false,
+                        minLength: 0,
+                        maxLength: 30,
+                    }
+                }
+            },
         };
     }
 
@@ -67,23 +105,45 @@ class LocalComponent extends React.Component {
             return;
         }
         const { data } = this.state;
-
         data.id.value = dataFirst.id;
         data.name.value = dataFirst.name;
-
-        this.updateState({ data });
+        data.description.value = dataFirst.description;
+        data.createdAt.value = dataFirst.createdAt;
+        data.status.value = dataFirst.status;
+        this.updateState({ data, isFormValid: true });
     }
 
     loadData(e) { }
 
     validateForm(key) {
-        let isValidForm = false;
-        const data = this.state.data;
-        data[key].errors = Validator.validate(key, data[key].value);
-        if (Utils.isEmpty(data[key].errors)) {
-            isValidForm = true;
+        const { data } = this.state;
+        const schema = data[key].schema;
+        const value = data[key].value;
+        data[key].errors = [];
+        if (schema.required === true) {
+            if (value === undefined || value === null || value === '') {
+                data[key].errors.push(`${schema.name} es requerido.`);
+            }
         }
-        this.updateState({ isValidForm, data: data });
+        if (schema.minLength !== undefined && schema.minLength >= 0) {
+            if (String(value).length < schema.minLength) {
+                data[key].errors.push(`${schema.name} requiere una longitud mínima de ${schema.minLength}.`);
+            }
+        }
+        if (schema.minLength !== undefined && schema.maxLength >= 0) {
+            if (String(value).length > schema.maxLength) {
+                data[key].errors.push(`${schema.name} requiere una longitud máxima de ${schema.maxLength}.`);
+            }
+        }
+        let isFormValid = true;
+        const keys = Object.keys(data);
+        for (const key of keys) {
+            if (data[key].errors.length !== 0) {
+                isFormValid = false;
+                break;
+            }
+        }
+        this.updateState({ data: data, isFormValid: isFormValid });
     }
 
     setChangeInputEvent(key, event) {
@@ -99,26 +159,35 @@ class LocalComponent extends React.Component {
         this.setState({ ...payload }, () => this.propagateState());
     }
 
-    doModifyAction = async (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        const form = e.target;
+    handleSubmit(event) {
+        if (event) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+        const form = event.target;
         const isValid = form.checkValidity();
-        if (isValid === true) {
-            this.updateState({ loading: true });
-            del(this.state.data.id.value).then(_result => {
-                form.reset();
-                this.updateState({ loading: false, isSuccessfullyCreation: true });
-                this.props.afterClosedDialog(true);
-            }).catch(err => {
-                console.log(err.fileName, err);
-                this.updateState({ loading: false, isSuccessfullyCreation: false, errorMessage: err.message })
-                this.props.addNotification({ typeToast: 'error', text: err.message, title: "ERROR" });
-            });
+        const { data, isFormValid } = this.state;
+        if (isFormValid === true && isValid === true) {
+            this.updateState({ loading: true, errorMessage: undefined, successMessage: undefined });
+            del(data.id.value)
+                .then(response => {
+                    console.log(response);
+                    this.updateState({
+                        successMessage: "Eliminación exitosa!",
+                        errorMessage: undefined
+                    });
+                    this.props.afterClosedDialog(true);
+                })
+                .catch(error => {
+                    this.updateState({
+                        errorMessage: error.message
+                    });
+                    console.error(error);
+                })
+                .finally(() => this.updateState({ loading: false }));
         }
         form.classList.add('was-validated');
     }
-
 
     render() {
         return (
@@ -140,24 +209,16 @@ class LocalComponent extends React.Component {
                                 <i data-feather="x"></i>
                             </button>
                         </div>
-                        <form id="formCustomerEditId" className="needs-validation form" onSubmit={this.doModifyAction} noValidate>
+                        <form id="formCustomerEditId" className="needs-validation form" onSubmit={this.handleSubmit} noValidate>
 
-                            {this.state.isSuccessfullyCreation && <div className="alert alert-success d-flex align-items-center" role="alert" style={{
-                                marginLeft: '15px', marginRight: '15px'
-                            }}>
-                                <i className="fa-solid fa-circle-check icon-input-color bi flex-shrink-0 me-2"></i>
-                                <div>
-                                    Eliminación exitosa.
-                                </div>
+                            {this.state.successMessage && <div className="alert alert-success" role="alert">
+                                <h5 className="alert-heading">EXITOSO</h5>
+                                <p className='p-error'>{this.state.successMessage}</p>
                             </div>}
 
-                            {this.state.errorMessage && <div className="alert alert-danger d-flex align-items-center" role="alert" style={{
-                                marginLeft: '15px', marginRight: '15px'
-                            }}>
-                                <i className="fa-solid fa-circle-exclamation icon-input-color bi flex-shrink-0 me-2"></i>
-                                <div>
-                                    {this.state.errorMessage}
-                                </div>
+                            {this.state.errorMessage && <div className="alert alert-danger" role="alert">
+                                <h5 className="alert-heading">ERROR</h5>
+                                <p className='p-error'>{this.state.errorMessage}</p>
                             </div>}
 
                             <div className="modal-body">
@@ -165,20 +226,15 @@ class LocalComponent extends React.Component {
                                     <div className="row match-height">
                                         <div className="col-12">
                                             <div className="card">
-
                                                 <div className="card-header">
                                                     <div style={{ flexDirection: "column" }}>
                                                         <h4 className="card-title">IMPORTANTE</h4>
-                                                        <h6>Se realizará un eliminado lógico.</h6>
+                                                        <h6>Se realizará un eliminado físico y lógico.</h6>
                                                         <h6>NO se volverá a ver en procesos o asignaciones.</h6>
                                                     </div>
                                                 </div>
-
                                                 <div className="card-content">
                                                     <div className="card-body">
-
-
-
                                                         <div className="row">
                                                             <div className="col-12 col-md-12">
                                                                 <div className="form-group mandatory">
@@ -194,7 +250,6 @@ class LocalComponent extends React.Component {
                                                                         disabled={true}
                                                                         autoComplete='off'
                                                                     />
-
                                                                     <div
                                                                         className="invalid-feedback"
                                                                         style={{
@@ -202,14 +257,9 @@ class LocalComponent extends React.Component {
                                                                         }}>
                                                                         {this.state.data.name.errors[0]}
                                                                     </div>
-
                                                                 </div>
                                                             </div>
-
-
                                                         </div>
-
-
                                                     </div>
                                                 </div>
                                             </div>
@@ -221,7 +271,7 @@ class LocalComponent extends React.Component {
                                 <ButtonSecondary text={'Regresar'} type="button" onClick={this.props.hideDialog}></ButtonSecondary>
 
                                 <ButtonPrimary
-                                    disabled={!this.state.isValidForm || this.state.loading || this.state.isSuccessfullyCreation}
+                                    disabled={!this.state.isFormValid || this.state.loading}
                                     className="btn-block btn-lg background-color-primary"
                                     type='submit'
                                     loading={this.state.loading}

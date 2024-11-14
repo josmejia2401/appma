@@ -253,7 +253,7 @@ class Page extends React.Component {
                                         <table className="table table-hover mb-0">
                                             <thead>
                                                 <tr>
-                                                    <th colSpan={6}>
+                                                    <th colSpan={5}>
                                                         <input
                                                             placeholder='Buscar...'
                                                             type="text"
@@ -277,7 +277,7 @@ class Page extends React.Component {
                                             <tbody>
 
                                                 {this.state.loading && (<tr>
-                                                    <td className="text-color" colSpan={6}>
+                                                    <td className="text-color" colSpan={5}>
                                                         <div className="skeleton-panel">
                                                             <div className="skeleton-line" />
                                                             <div className="skeleton-line" />
@@ -287,7 +287,7 @@ class Page extends React.Component {
                                                 </tr>)}
 
                                                 {!this.state.loading && this.state.dataFiltered.length === 0 && (<tr>
-                                                    <td className="text-color" colSpan={6}>
+                                                    <td className="text-color" colSpan={5}>
                                                         <i className="fa-solid fa-circle-exclamation no-found-icon"></i>
                                                         <h1 className="no-found-text">No hay datos</h1>
                                                     </td>
@@ -297,15 +297,14 @@ class Page extends React.Component {
                                                     return (<tr key={index}>
                                                         <td className="text-color">{item.name}</td>
                                                         <td className="text-color">{item.description}</td>
-                                                        <td className="text-color">{item.duration}</td>
-                                                        <td className="text-color">{item.pricing}</td>
-                                                        <td><span className={buildAndGetClassStatus(item?.recordStatus)}>{findStatusById(item?.recordStatus).name}</span></td>
+                                                        <td><span className={buildAndGetClassStatus(item?.status)}>{findStatusById(item?.status).name}</span></td>
+                                                        <td className="text-color">{item.createdAt}</td>
                                                         <td>
-                                                            {this.checkViewEditAction(item.recordStatus) && (<a href="#">
+                                                            {this.checkViewEditAction(item.status) && (<a href="#">
                                                                 <i className="fa-regular fa-pen-to-square primary-color" onClick={() => this.showDialog('edit', item)}></i>
                                                             </a>)}
 
-                                                            {this.checkViewDeleteAction(item?.recordStatus) && (<a href="#" style={{ marginLeft: '15px' }}>
+                                                            {this.checkViewDeleteAction(item?.status) && (<a href="#" style={{ marginLeft: '15px' }}>
                                                                 <i className="fa-solid fa-trash primary-color" onClick={() => this.showDialog('remove', item)}></i>
                                                             </a>)}
                                                         </td>
@@ -315,7 +314,7 @@ class Page extends React.Component {
 
                                             {!this.state.loading && this.state.thereIsMoreData && <tfoot>
                                                 <tr>
-                                                    <td colSpan="6">
+                                                    <td colSpan={5}>
                                                         <a
                                                             href="#"
                                                             className='center-text'

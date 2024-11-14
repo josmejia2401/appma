@@ -10,8 +10,7 @@ export const create = async (payload) => {
                 ...authHeaders
             },
         });
-        const data = res.data;
-        return data;
+        return res.data;
     } catch (error) {
         console.error(error);
         buildAndThrowNewError(error);

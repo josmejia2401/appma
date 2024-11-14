@@ -1,26 +1,20 @@
 import * as React from 'react';
 import "./styles.css";
-import { buildPayload } from '../../../lib/form';
-import Utils from '../../../lib/utils';
-import Validator from '../validators/validator';
 import ButtonPrimary from '../../../components/button-primary';
 import ButtonSecondary from '../../../components/button-secondary';
 import { create } from '../../../services/projects.services';
-
 class LocalComponent extends React.Component {
 
     constructor(props) {
         super(props);
         this.state = this.defaultState();
+
         this.defaultState = this.defaultState.bind(this);
         this.validateForm = this.validateForm.bind(this);
         this.setChangeInputEvent = this.setChangeInputEvent.bind(this);
         this.propagateState = this.propagateState.bind(this);
         this.updateState = this.updateState.bind(this);
-        this.loadFirstData = this.loadFirstData.bind(this);
-        this.loadData = this.loadData.bind(this);
-
-        this.doInviteAction = this.doInviteAction.bind(this);
+        this.handleSubmit = this.handleSubmit.bind(this);
     }
 
     componentDidMount() {
@@ -34,25 +28,29 @@ class LocalComponent extends React.Component {
     defaultState() {
         return {
             loading: false,
-            isValidForm: false,
-            errorMessage: '',
-            isSuccessfullyCreation: false,
+            isFormValid: false,
+            errorMessage: undefined,
+            successMessage: undefined,
             data: {
                 name: {
                     value: '',
-                    errors: []
+                    errors: [],
+                    schema: {
+                        name: 'Nombre del proyecto',
+                        required: true,
+                        minLength: 1,
+                        maxLength: 100,
+                    }
                 },
                 description: {
                     value: '',
-                    errors: []
-                },
-                pricing: {
-                    value: '',
-                    errors: []
-                },
-                duration: {
-                    value: '',
-                    errors: []
+                    errors: [],
+                    schema: {
+                        name: 'Descripción',
+                        required: false,
+                        minLength: 0,
+                        maxLength: 250,
+                    }
                 },
             },
         };
@@ -66,24 +64,35 @@ class LocalComponent extends React.Component {
     }
 
 
-    loadFirstData() { }
-
-    loadData(e) { }
-
     validateForm(key) {
-        let isValidForm = false;
-        const data = this.state.data;
-        data[key].errors = Validator.validate(key, data[key].value);
-        if (Utils.isEmpty(data[key].errors)) {
-            isValidForm = true;
-        }
-        Object.keys(this.state.data).forEach(p => {
-            const errors = Validator.validate(p, data[p].value);
-            if (errors.length > 0) {
-                isValidForm = false;
+        const { data } = this.state;
+        const schema = data[key].schema;
+        const value = data[key].value;
+        data[key].errors = [];
+        if (schema.required === true) {
+            if (value === undefined || value === null || value === '') {
+                data[key].errors.push(`${schema.name} es requerido.`);
             }
-        });
-        this.updateState({ isValidForm, data: data });
+        }
+        if (schema.minLength !== undefined && schema.minLength >= 0) {
+            if (String(value).length < schema.minLength) {
+                data[key].errors.push(`${schema.name} requiere una longitud mínima de ${schema.minLength}.`);
+            }
+        }
+        if (schema.minLength !== undefined && schema.maxLength >= 0) {
+            if (String(value).length > schema.maxLength) {
+                data[key].errors.push(`${schema.name} requiere una longitud máxima de ${schema.maxLength}.`);
+            }
+        }
+        let isFormValid = true;
+        const keys = Object.keys(data);
+        for (const key of keys) {
+            if (data[key].errors.length !== 0) {
+                isFormValid = false;
+                break;
+            }
+        }
+        this.updateState({ data: data, isFormValid: isFormValid });
     }
 
     setChangeInputEvent(key, event) {
@@ -99,37 +108,39 @@ class LocalComponent extends React.Component {
         this.setState({ ...payload }, () => this.propagateState());
     }
 
-
-
-    /**
-     * Invita a un usuario del sistema, para ser empleado o miembro del equipo.
-     * se modifica la tabla de usuarios, y se agrega a invitaciones la invitación, 
-     * y al usuario principal, empleados.
-     * 
-     * @param {*} e 
-     */
-    doInviteAction = async (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        const form = e.target;
+    handleSubmit(event) {
+        if (event) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+        const form = event.target;
         const isValid = form.checkValidity();
-        if (isValid === true) {
-            this.updateState({ loading: true, errorMessage: undefined });
-            const data = buildPayload(form, { recordStatus: 1, name: "", duration: "", description: "" });
-            if (data.duration) {
-                data.duration = Number(data.duration);
-            } else {
-                delete data.duration;
-            }
-            create(data).then(_result => {
-                form.reset();
-                this.resetData({ isSuccessfullyCreation: true });
-                this.props.afterClosedDialog(true);
-            }).catch(err => {
-                console.log(err.fileName, err);
-                this.updateState({ loading: false, isSuccessfullyCreation: false, errorMessage: err.message })
-                this.props.addNotification({ typeToast: 'error', text: err.message, title: "ERROR" });
-            });
+        const { data, isFormValid } = this.state;
+        if (isFormValid === true && isValid === true) {
+            this.updateState({ loading: true, errorMessage: undefined, successMessage: undefined });
+            create({
+                name: data.name.value,
+                description: data.description.value,
+                status: 1
+            })
+                .then(response => {
+                    this.updateState({
+                        successMessage: "Creación exitosa!",
+                        errorMessage: undefined
+                    });
+                    /*this.resetData({
+                        uccessMessage: "Creación exitosa!",
+                        errorMessage: undefined
+                    });*/
+                    this.props.afterClosedDialog(true);
+                })
+                .catch(error => {
+                    this.updateState({
+                        errorMessage: error.message
+                    });
+                    console.error(error);
+                })
+                .finally(() => this.updateState({ loading: false }));
         }
         form.classList.add('was-validated');
     }
@@ -156,24 +167,16 @@ class LocalComponent extends React.Component {
                             </button>
                         </div>
 
-                        <form className="needs-validation form" onSubmit={this.doInviteAction} noValidate>
+                        <form className="needs-validation form" onSubmit={this.handleSubmit} noValidate>
 
-                            {this.state.isSuccessfullyCreation && <div className="alert alert-success d-flex align-items-center" role="alert" style={{
-                                marginLeft: '15px', marginRight: '15px'
-                            }}>
-                                <i className="fa-solid fa-circle-check icon-input-color bi flex-shrink-0 me-2"></i>
-                                <div>
-                                    Creación exitosa.
-                                </div>
+                            {this.state.successMessage && <div className="alert alert-success" role="alert">
+                                <h5 className="alert-heading">EXITOSO</h5>
+                                <p className='p-error'>{this.state.successMessage}</p>
                             </div>}
 
-                            {this.state.errorMessage && <div className="alert alert-danger d-flex align-items-center" role="alert" style={{
-                                marginLeft: '15px', marginRight: '15px'
-                            }}>
-                                <i className="fa-solid fa-circle-exclamation icon-input-color bi flex-shrink-0 me-2"></i>
-                                <div>
-                                    {this.state.errorMessage}
-                                </div>
+                            {this.state.errorMessage && <div className="alert alert-danger" role="alert">
+                                <h5 className="alert-heading">ERROR</h5>
+                                <p className='p-error'>{this.state.errorMessage}</p>
                             </div>}
 
                             <div className="modal-body">
@@ -199,7 +202,6 @@ class LocalComponent extends React.Component {
                                                                         disabled={this.state.loading}
                                                                         autoComplete='off'
                                                                     />
-
                                                                     <div
                                                                         className="invalid-feedback"
                                                                         style={{
@@ -207,73 +209,6 @@ class LocalComponent extends React.Component {
                                                                         }}>
                                                                         {this.state.data.name.errors[0]}
                                                                     </div>
-
-                                                                </div>
-                                                            </div>
-
-                                                        </div>
-
-
-
-
-
-
-
-                                                        <div className="row">
-                                                            <div className="col-12 col-md-6">
-                                                                <div className="form-group mandatory">
-                                                                    <label htmlFor="duration" className="form-label">Duración (Minutos)</label>
-                                                                    <input
-                                                                        type="number"
-                                                                        id="duration"
-                                                                        className="form-control"
-                                                                        placeholder="Ingrese la duración"
-                                                                        name="duration"
-                                                                        required={false}
-                                                                        value={this.state.data.duration.value}
-                                                                        onChange={(event) => this.setChangeInputEvent('duration', event)}
-                                                                        disabled={this.state.loading}
-                                                                        autoComplete='off'
-                                                                    />
-
-                                                                    <div
-                                                                        className="invalid-feedback"
-                                                                        style={{
-                                                                            display: this.state.data.duration.errors.length > 0 ? 'block' : 'none'
-                                                                        }}>
-                                                                        {this.state.data.duration.errors[0]}
-                                                                    </div>
-
-
-                                                                </div>
-                                                            </div>
-
-
-                                                            <div className="col-12 col-md-6">
-                                                                <div className="form-group mandatory">
-                                                                    <label htmlFor="pricing" className="form-label">Precio</label>
-                                                                    <input
-                                                                        type="number"
-                                                                        id="pricing"
-                                                                        className="form-control"
-                                                                        placeholder="Ingrese el precio"
-                                                                        name="pricing"
-                                                                        required={false}
-                                                                        value={this.state.data.pricing.value}
-                                                                        onChange={(event) => this.setChangeInputEvent('pricing', event)}
-                                                                        disabled={this.state.loading}
-                                                                        autoComplete='off'
-                                                                    />
-
-                                                                    <div
-                                                                        className="invalid-feedback"
-                                                                        style={{
-                                                                            display: this.state.data.pricing.errors.length > 0 ? 'block' : 'none'
-                                                                        }}>
-                                                                        {this.state.data.pricing.errors[0]}
-                                                                    </div>
-
-
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -283,7 +218,6 @@ class LocalComponent extends React.Component {
                                                             <div className="col-12 col-md-12">
                                                                 <div className="form-group mandatory">
                                                                     <label htmlFor="description" className="form-label">Descripción</label>
-
                                                                     <textarea
                                                                         id="description"
                                                                         className="form-control"
@@ -302,17 +236,9 @@ class LocalComponent extends React.Component {
                                                                         }}>
                                                                         {this.state.data.description.errors[0]}
                                                                     </div>
-
                                                                 </div>
                                                             </div>
                                                         </div>
-
-
-
-
-
-
-
                                                     </div>
                                                 </div>
                                             </div>
@@ -322,9 +248,8 @@ class LocalComponent extends React.Component {
                             </div>
                             <div className="modal-footer">
                                 <ButtonSecondary text={'Regresar'} type="button" onClick={this.props.hideDialog}></ButtonSecondary>
-
                                 <ButtonPrimary
-                                    disabled={!this.state.isValidForm || this.state.loading}
+                                    disabled={!this.state.isFormValid || this.state.loading}
                                     className="btn-block btn-lg background-color-primary"
                                     type='submit'
                                     loading={this.state.loading}

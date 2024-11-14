@@ -1,8 +1,6 @@
 import * as React from 'react';
 import "./styles.css";
-import { buildPayload } from '../../../lib/form';
 import Utils from '../../../lib/utils';
-import Validator from '../validators/validator';
 import ButtonPrimary from '../../../components/button-primary';
 import ButtonSecondary from '../../../components/button-secondary';
 import { status } from '../../../lib/list-values';
@@ -22,7 +20,7 @@ class LocalComponent extends React.Component {
         this.loadData = this.loadData.bind(this);
 
         //own
-        this.doModifyAction = this.doModifyAction.bind(this);
+        this.handleSubmit = this.handleSubmit.bind(this);
         this.buildAndGetStatus = this.buildAndGetStatus.bind(this);
 
     }
@@ -40,34 +38,60 @@ class LocalComponent extends React.Component {
     defaultState() {
         return {
             loading: false,
-            isValidForm: false,
-            errorMessage: '',
-            isSuccessfullyCreation: false,
+            isFormValid: false,
+            errorMessage: undefined,
+            successMessage: undefined,
             data: {
                 id: {
                     value: '',
-                    errors: []
+                    errors: [],
+                    schema: {
+                        name: 'Id',
+                        required: true,
+                        minLength: 1,
+                        maxLength: 100,
+                    }
                 },
                 name: {
                     value: '',
-                    errors: []
+                    errors: [],
+                    schema: {
+                        name: 'Nombre del proyecto',
+                        required: true,
+                        minLength: 1,
+                        maxLength: 100,
+                    }
                 },
                 description: {
                     value: '',
-                    errors: []
+                    errors: [],
+                    schema: {
+                        name: 'Descripción',
+                        required: false,
+                        minLength: 0,
+                        maxLength: 250,
+                    }
                 },
-                pricing: {
-                    value: '',
-                    errors: []
+                status: {
+                    value: 1,
+                    errors: [],
+                    schema: {
+                        name: 'Estado',
+                        required: true,
+                        minLength: 0,
+                        maxLength: 9,
+                    }
                 },
-                duration: {
-                    value: '',
-                    errors: []
-                },
-                recordStatus: {
-                    value: '',
-                    errors: []
-                },
+                createdAt: {
+                    value: 1,
+                    errors: [],
+                    schema: {
+                        name: 'Fecha de creación',
+                        required: false,
+                        minLength: 0,
+                        maxLength: 30,
+                    }
+                }
             },
         };
     }
@@ -85,27 +109,45 @@ class LocalComponent extends React.Component {
             return;
         }
         const { data } = this.state;
-
         data.id.value = dataFirst.id;
         data.name.value = dataFirst.name;
         data.description.value = dataFirst.description;
-        data.duration.value = dataFirst.duration;
-        data.pricing.value = dataFirst.pricing;
-        data.recordStatus.value = dataFirst.recordStatus;
-
+        data.createdAt.value = dataFirst.createdAt;
+        data.status.value = dataFirst.status;
         this.updateState({ data });
     }
 
     loadData(e) { }
 
     validateForm(key) {
-        let isValidForm = false;
-        const data = this.state.data;
-        data[key].errors = Validator.validate(key, data[key].value);
-        if (Utils.isEmpty(data[key].errors)) {
-            isValidForm = true;
+        const { data } = this.state;
+        const schema = data[key].schema;
+        const value = data[key].value;
+        data[key].errors = [];
+        if (schema.required === true) {
+            if (value === undefined || value === null || value === '') {
+                data[key].errors.push(`${schema.name} es requerido.`);
+            }
         }
-        this.updateState({ isValidForm, data: data });
+        if (schema.minLength !== undefined && schema.minLength >= 0) {
+            if (String(value).length < schema.minLength) {
+                data[key].errors.push(`${schema.name} requiere una longitud mínima de ${schema.minLength}.`);
+            }
+        }
+        if (schema.minLength !== undefined && schema.maxLength >= 0) {
+            if (String(value).length > schema.maxLength) {
+                data[key].errors.push(`${schema.name} requiere una longitud máxima de ${schema.maxLength}.`);
+            }
+        }
+        let isFormValid = true;
+        const keys = Object.keys(data);
+        for (const key of keys) {
+            if (data[key].errors.length !== 0) {
+                isFormValid = false;
+                break;
+            }
+        }
+        this.updateState({ data: data, isFormValid: isFormValid });
     }
 
     setChangeInputEvent(key, event) {
@@ -125,37 +167,41 @@ class LocalComponent extends React.Component {
         return status.filter(p => [1, 2].includes(p.id));
     }
 
-
-    doModifyAction = async (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        const form = e.target;
+    handleSubmit(event) {
+        if (event) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+        const form = event.target;
         const isValid = form.checkValidity();
-        if (isValid === true) {
-            this.updateState({ loading: true, errorMessage: undefined });
-            const data = buildPayload(form, {
-                name: '',
-                description: '',
-                duration: 0,
-                pricing: 0,
-                recordStatus: 1
-            });
-            data.recordStatus = Number(data.recordStatus);
-            data.pricing = Number(data.pricing || 0);
-            data.duration = Number(data.duration || 0);
-
-            update(this.state.data.id.value, data).then(_result => {
-                form.reset();
-                this.updateState({ loading: false, isSuccessfullyCreation: true })
-                this.props.afterClosedDialog(true);
-            }).catch(err => {
-                console.log(err.fileName, err);
-                this.updateState({ loading: false, isSuccessfullyCreation: false, errorMessage: err.message })
-                this.props.addNotification({ typeToast: 'error', text: err.message, title: "ERROR" });
-            });
+        const { data, isFormValid } = this.state;
+        if (isFormValid === true && isValid === true) {
+            this.updateState({ loading: true, errorMessage: undefined, successMessage: undefined });
+            update(data.id.value,
+                {
+                    name: data.name.value,
+                    description: data.description.value,
+                    status: data.status.value
+                })
+                .then(response => {
+                    console.log(response);
+                    this.updateState({
+                        successMessage: "Actualización exitosa!",
+                        errorMessage: undefined
+                    });
+                    this.props.afterClosedDialog(true);
+                })
+                .catch(error => {
+                    this.updateState({
+                        errorMessage: error.message
+                    });
+                    console.error(error);
+                })
+                .finally(() => this.updateState({ loading: false }));
         }
         form.classList.add('was-validated');
     }
+
 
 
     render() {
@@ -178,24 +224,16 @@ class LocalComponent extends React.Component {
                                 <i data-feather="x"></i>
                             </button>
                         </div>
-                        <form className="needs-validation form" onSubmit={this.doModifyAction} noValidate>
+                        <form className="needs-validation form" onSubmit={this.handleSubmit} noValidate>
 
-                            {this.state.isSuccessfullyCreation === true && <div className="alert alert-success d-flex align-items-center" role="alert" style={{
-                                marginLeft: '15px', marginRight: '15px'
-                            }}>
-                                <i className="fa-solid fa-circle-check icon-input-color bi flex-shrink-0 me-2"></i>
-                                <div>
-                                    Actualización exitosa.
-                                </div>
+                            {this.state.successMessage && <div className="alert alert-success" role="alert">
+                                <h5 className="alert-heading">EXITOSO</h5>
+                                <p className='p-error'>{this.state.successMessage}</p>
                             </div>}
 
-                            {this.state.errorMessage && <div className="alert alert-danger d-flex align-items-center" role="alert" style={{
-                                marginLeft: '15px', marginRight: '15px'
-                            }}>
-                                <i className="fa-solid fa-circle-exclamation icon-input-color bi flex-shrink-0 me-2"></i>
-                                <div>
-                                    {this.state.errorMessage}
-                                </div>
+                            {this.state.errorMessage && <div className="alert alert-danger" role="alert">
+                                <h5 className="alert-heading">ERROR</h5>
+                                <p className='p-error'>{this.state.errorMessage}</p>
                             </div>}
 
                             <div className="modal-body">
@@ -223,7 +261,6 @@ class LocalComponent extends React.Component {
                                                                         disabled={this.state.loading}
                                                                         autoComplete='off'
                                                                     />
-
                                                                     <div
                                                                         className="invalid-feedback"
                                                                         style={{
@@ -231,101 +268,32 @@ class LocalComponent extends React.Component {
                                                                         }}>
                                                                         {this.state.data.name.errors[0]}
                                                                     </div>
-
                                                                 </div>
                                                             </div>
 
                                                             <div className="col-12 col-md-6">
                                                                 <div className="form-group mandatory required">
-                                                                    <label htmlFor="recordStatus" className="form-label control-label">Estado</label>
+                                                                    <label htmlFor="status" className="form-label control-label">Estado</label>
                                                                     <select
                                                                         className="form-select"
-                                                                        id="recordStatus"
-                                                                        name='recordStatus'
-                                                                        value={this.state.data.recordStatus.value}
+                                                                        id="status"
+                                                                        name='status'
+                                                                        value={this.state.data.status.value}
                                                                         required={false}
-                                                                        onChange={(event) => this.setChangeInputEvent('recordStatus', event)}
+                                                                        onChange={(event) => this.setChangeInputEvent('status', event)}
                                                                         disabled={this.state.loading || this.state.isSuccessfullyCreation}>
                                                                         <option value={null}>Seleccionar...</option>
                                                                         {this.buildAndGetStatus().map((item, index) => {
                                                                             return (<option value={item.id} key={index}>{item.name}</option>);
                                                                         })}
                                                                     </select>
-
                                                                     <div
                                                                         className="invalid-feedback"
                                                                         style={{
-                                                                            display: this.state.data.recordStatus.errors.length > 0 ? 'block' : 'none'
+                                                                            display: this.state.data.status.errors.length > 0 ? 'block' : 'none'
                                                                         }}>
-                                                                        {this.state.data.recordStatus.errors[0]}
+                                                                        {this.state.data.status.errors[0]}
                                                                     </div>
-
-                                                                </div>
-                                                            </div>
-
-                                                        </div>
-
-
-
-
-
-
-
-                                                        <div className="row">
-                                                            <div className="col-12 col-md-6">
-                                                                <div className="form-group mandatory">
-                                                                    <label htmlFor="duration" className="form-label">Duración (Minutos)</label>
-                                                                    <input
-                                                                        type="number"
-                                                                        id="duration"
-                                                                        className="form-control"
-                                                                        placeholder="Ingrese la duración"
-                                                                        name="duration"
-                                                                        required={false}
-                                                                        value={this.state.data.duration.value}
-                                                                        onChange={(event) => this.setChangeInputEvent('duration', event)}
-                                                                        disabled={this.state.loading}
-                                                                        autoComplete='off'
-                                                                    />
-
-                                                                    <div
-                                                                        className="invalid-feedback"
-                                                                        style={{
-                                                                            display: this.state.data.duration.errors.length > 0 ? 'block' : 'none'
-                                                                        }}>
-                                                                        {this.state.data.duration.errors[0]}
-                                                                    </div>
-
-
-                                                                </div>
-                                                            </div>
-
-
-                                                            <div className="col-12 col-md-6">
-                                                                <div className="form-group mandatory">
-                                                                    <label htmlFor="pricing" className="form-label">Precio</label>
-                                                                    <input
-                                                                        type="number"
-                                                                        id="pricing"
-                                                                        className="form-control"
-                                                                        placeholder="Ingrese el precio"
-                                                                        name="pricing"
-                                                                        required={false}
-                                                                        value={this.state.data.pricing.value}
-                                                                        onChange={(event) => this.setChangeInputEvent('pricing', event)}
-                                                                        disabled={this.state.loading}
-                                                                        autoComplete='off'
-                                                                    />
-
-                                                                    <div
-                                                                        className="invalid-feedback"
-                                                                        style={{
-                                                                            display: this.state.data.pricing.errors.length > 0 ? 'block' : 'none'
-                                                                        }}>
-                                                                        {this.state.data.pricing.errors[0]}
-                                                                    </div>
-
-
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -335,7 +303,6 @@ class LocalComponent extends React.Component {
                                                             <div className="col-12 col-md-12">
                                                                 <div className="form-group mandatory">
                                                                     <label htmlFor="description" className="form-label">Descripción</label>
-
                                                                     <textarea
                                                                         id="description"
                                                                         className="form-control"
@@ -358,12 +325,6 @@ class LocalComponent extends React.Component {
                                                                 </div>
                                                             </div>
                                                         </div>
-
-
-
-
-
-
                                                     </div>
                                                 </div>
                                             </div>
@@ -375,7 +336,7 @@ class LocalComponent extends React.Component {
                                 <ButtonSecondary text={'Regresar'} type="button" onClick={this.props.hideDialog}></ButtonSecondary>
 
                                 <ButtonPrimary
-                                    disabled={!this.state.isValidForm || this.state.loading || this.state.isSuccessfullyCreation}
+                                    disabled={!this.state.isFormValid || this.state.loading}
                                     className="btn-block btn-lg background-color-primary"
                                     type='submit'
                                     loading={this.state.loading}
