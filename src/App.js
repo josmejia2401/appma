@@ -54,7 +54,12 @@ function App(props) {
                 <li className="nav-item">
                   <Link className={`${currentPathName === '/projects' ? 'active' : ''} nav-link me-lg-3`} to={"/projects"}>Proyectos</Link>
                 </li>
-                <Link className={`${currentPathName === '/auth/download' ? 'active' : ''} nav-link me-lg-3`} to={"#download"}>Download</Link>
+                <li className="nav-item">
+                  <Link className={`${currentPathName === '/functionalities' ? 'active' : ''} nav-link me-lg-3`} to={"/functionalities"}>Funcionalidades</Link>
+                </li>
+                <li className="nav-item">
+                  <Link className={`${currentPathName === '/tasks' ? 'active' : ''} nav-link me-lg-3`} to={"/tasks"}>Tareas</Link>
+                </li>
               </ul>
               <button className="btn btn-primary rounded-pill px-3 mb-2 mb-lg-0" data-bs-toggle="modal" data-bs-target="#feedbackModal">
                 <span className="d-flex align-items-center">

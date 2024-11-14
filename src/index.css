@@ -167,3 +167,7 @@ body {
     transform: scale(1)
   }
 }
+
+.primary-color {
+  color: var(--color-dark) !important;
+}
