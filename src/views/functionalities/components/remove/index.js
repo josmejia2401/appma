@@ -1,9 +1,9 @@
 import * as React from 'react';
 import "./styles.css";
-import Utils from '../../../lib/utils';
-import ButtonPrimary from '../../../components/button-primary';
-import ButtonSecondary from '../../../components/button-secondary';
-import { del } from '../../../services/projects.services';
+import Utils from '../../../../lib/utils';
+import ButtonPrimary from '../../../../components/button-primary';
+import ButtonSecondary from '../../../../components/button-secondary';
+import { del } from '../../../../services/functionalities.services';
 class LocalComponent extends React.Component {
 
     constructor(props) {

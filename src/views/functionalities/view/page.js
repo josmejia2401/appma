@@ -4,7 +4,7 @@ import CreateComponent from '../components/create';
 import EditComponent from '../components/edit';
 import RemoveComponent from '../components/remove';
 import Utils from '../../../lib/utils';
-import { filter } from '../../../services/projects.services';
+import { filter } from '../../../services/functionalities.services';
 import { buildAndGetClassStatus, findStatusById } from '../../../lib/list-values';
 import ButtonIcon from '../../../components/button-icon';
 
@@ -47,6 +47,9 @@ class Page extends React.Component {
             loading: false,
             isValidForm: false,
             thereIsMoreData: false,
+            params: {
+                projectId: undefined
+            },
             data: [],
             dataFiltered: [],
             dataSelected: undefined,
@@ -92,6 +95,11 @@ class Page extends React.Component {
         }).catch(err => {
             console.log(err.fileName, err);
             this.updateState({ loading: false });
+        });
+        this.updateState({
+            params: {
+                projectId: new URLSearchParams(window.location.search).get("projectId")
+            }
         });
     }
 
@@ -228,7 +236,7 @@ class Page extends React.Component {
                         <div className="col-12">
                             <div className="card">
                                 <div className="card-header">
-                                    <h4 className="card-title title-color">Listado de proyectos</h4>
+                                    <h4 className="card-title title-color">Listado de funcionalidades</h4>
 
                                     <div className='btn-create-customer'>
                                         <ButtonIcon type="button"
@@ -237,12 +245,12 @@ class Page extends React.Component {
                                             <i className="fa-solid fa-rotate-right"></i>
                                         </ButtonIcon>
 
-                                        <ButtonIcon type="button"
+                                        {this.state.params.projectId && <ButtonIcon type="button"
                                             className="btn icon btn-primary-custom btn-create-customer"
                                             style={{ marginLeft: '5px' }}
                                             onClick={() => this.showDialog('create')}>
                                             <i className="fa-solid fa-plus"></i>
-                                        </ButtonIcon>
+                                        </ButtonIcon>}
 
                                     </div>
 

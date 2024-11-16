@@ -1,10 +1,10 @@
 import * as React from 'react';
 import "./styles.css";
-import Utils from '../../../lib/utils';
-import ButtonPrimary from '../../../components/button-primary';
-import ButtonSecondary from '../../../components/button-secondary';
-import { status } from '../../../lib/list-values';
-import { update } from '../../../services/projects.services';
+import Utils from '../../../../lib/utils';
+import ButtonPrimary from '../../../../components/button-primary';
+import ButtonSecondary from '../../../../components/button-secondary';
+import { status } from '../../../../lib/list-values';
+import { update } from '../../../../services/functionalities.services';
 
 class LocalComponent extends React.Component {
 
@@ -69,7 +69,7 @@ class LocalComponent extends React.Component {
                         name: 'Descripción',
                         required: false,
                         minLength: 0,
-                        maxLength: 250,
+                        maxLength: 1000,
                     }
                 },
                 status: {
@@ -87,6 +87,16 @@ class LocalComponent extends React.Component {
                     errors: [],
                     schema: {
                         name: 'Fecha de creación',
+                        required: false,
+                        minLength: 0,
+                        maxLength: 30,
+                    }
+                },
+                projectId: {
+                    value: undefined,
+                    errors: [],
+                    schema: {
+                        name: 'ID del proyecto',
                         required: false,
                         minLength: 0,
                         maxLength: 30,
@@ -114,6 +124,7 @@ class LocalComponent extends React.Component {
         data.description.value = dataFirst.description;
         data.createdAt.value = dataFirst.createdAt;
         data.status.value = dataFirst.status;
+        data.projectId.value = dataFirst.projectId;
         this.updateState({ data });
     }
 
@@ -181,7 +192,8 @@ class LocalComponent extends React.Component {
                 {
                     name: data.name.value,
                     description: data.description.value,
-                    status: data.status.value
+                    status: data.status.value,
+                    projectId: data.projectId.value
                 })
                 .then(response => {
                     console.log(response);
