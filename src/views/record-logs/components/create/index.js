@@ -5,6 +5,7 @@ import ButtonPrimary from '../../../../components/button-primary';
 import ButtonSecondary from '../../../../components/button-secondary';
 import { phase, status } from '../../../../lib/list-values';
 import { update } from '../../../../services/tasks.services';
+import { Stopwatch } from '../../../../components/stopwatch';
 
 class LocalComponent extends React.Component {
 
@@ -23,8 +24,7 @@ class LocalComponent extends React.Component {
         this.handleSubmit = this.handleSubmit.bind(this);
         this.buildAndGetStatus = this.buildAndGetStatus.bind(this);
         this.buildAndGetPhase = this.buildAndGetPhase.bind(this);
-
-
+        this.startProcess = this.startProcess.bind(this);
     }
 
 
@@ -41,11 +41,11 @@ class LocalComponent extends React.Component {
         return {
             loading: false,
             isFormValid: false,
-            errorMessage: undefined,
-            successMessage: undefined,
+            errorMessage: "",
+            successMessage: "",
             task: {
-                taskId: undefined,
-                functionalityId: undefined
+                taskId: "",
+                functionalityId: ""
             },
             data: {
                 id: {
@@ -129,7 +129,7 @@ class LocalComponent extends React.Component {
                     }
                 },
                 phase: {
-                    value: undefined,
+                    value: 1,
                     errors: [],
                     schema: {
                         name: 'ID de la fase',
@@ -207,8 +207,18 @@ class LocalComponent extends React.Component {
     setChangeInputEvent(key, event) {
         const { data } = this.state;
         data[key].value = event.target.value;
+
+        if (data.startDate.value && data.endDate.value) {
+            data.deltaTime.value = Math.abs(new Date(data.endDate.value) - new Date(data.startDate.value)) / 1000 / 60;
+            data.deltaTime.value = data.deltaTime.value - (data.interruptionTime.value || 0);
+            if (data.deltaTime.value < 0) {
+                data.deltaTime.errors = ["Delta no puede ser menor a cero."];
+            }
+        }
+
         this.updateState({ data: data });
         this.validateForm(key);
+
     }
 
     propagateState() { }
@@ -234,7 +244,7 @@ class LocalComponent extends React.Component {
         const isValid = form.checkValidity();
         const { data, isFormValid, task } = this.state;
         if (isFormValid === true && isValid === true) {
-            this.updateState({ loading: true, errorMessage: undefined, successMessage: undefined });
+            this.updateState({ loading: true, errorMessage: "", successMessage: "" });
             update(task.taskId, {
                 functionalityId: task.functionalityId,
                 logs: {
@@ -254,7 +264,7 @@ class LocalComponent extends React.Component {
                     console.log(response);
                     this.updateState({
                         successMessage: "Creación exitosa!",
-                        errorMessage: undefined
+                        errorMessage: ""
                     });
                     this.props.afterClosedDialog(true);
                 })
@@ -269,6 +279,23 @@ class LocalComponent extends React.Component {
         form.classList.add('was-validated');
     }
 
+
+    startProcess(timeInput) {
+        const { data } = this.state;
+        if (timeInput && timeInput.startDate && timeInput.endDate) {
+            data.startDate.value = timeInput.startDate.toISOString().slice(0, 19);
+            data.endDate.value = timeInput.endDate.toISOString().slice(0, 19);
+            const elapsedInMin = timeInput.elapsed / 60;
+            const diffInSec =  Math.abs(timeInput.endDate - timeInput.startDate) / 1000;
+            const diffInMin = diffInSec / 60;
+            data.deltaTime.value = parseFloat(elapsedInMin).toFixed(3);
+            data.interruptionTime.value = parseFloat(diffInMin - elapsedInMin).toFixed(3);
+            if (data.deltaTime.value < 0) {
+                data.deltaTime.errors = ["Delta no puede ser menor a cero."];
+            }
+        }
+        this.updateState({ data: data });
+    }
 
 
     render() {
@@ -305,6 +332,7 @@ class LocalComponent extends React.Component {
 
                             <div className="modal-body">
                                 <section>
+                                    <Stopwatch handle={this.startProcess}></Stopwatch>
                                     <div className="row match-height">
                                         <div className="col-12">
                                             <div className="card">
@@ -363,32 +391,6 @@ class LocalComponent extends React.Component {
                                                                     </div>
                                                                 </div>
                                                             </div>
-
-                                                            {/*<div className="col-12 col-md-6">
-                                                                <div className="form-group mandatory required">
-                                                                    <label htmlFor="status" className="form-label control-label">Estado</label>
-                                                                    <select
-                                                                        className="form-select"
-                                                                        id="status"
-                                                                        name='status'
-                                                                        value={this.state.data.status.value}
-                                                                        required={false}
-                                                                        onChange={(event) => this.setChangeInputEvent('status', event)}
-                                                                        disabled={this.state.loading || this.state.isSuccessfullyCreation}>
-                                                                        <option value={null}>Seleccionar...</option>
-                                                                        {this.buildAndGetStatus().map((item, index) => {
-                                                                            return (<option value={item.id} key={index}>{item.name}</option>);
-                                                                        })}
-                                                                    </select>
-                                                                    <div
-                                                                        className="invalid-feedback"
-                                                                        style={{
-                                                                            display: this.state.data.status.errors.length > 0 ? 'block' : 'none'
-                                                                        }}>
-                                                                        {this.state.data.status.errors[0]}
-                                                                    </div>
-                                                                </div>
-                                                            </div>*/}
                                                         </div>
 
 
@@ -434,7 +436,7 @@ class LocalComponent extends React.Component {
                                                                         required={true}
                                                                         value={this.state.data.deltaTime.value}
                                                                         onChange={(event) => this.setChangeInputEvent('deltaTime', event)}
-                                                                        disabled={this.state.loading}
+                                                                        disabled={true}
                                                                         autoComplete='off'
                                                                     />
                                                                     <div
