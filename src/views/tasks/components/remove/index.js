@@ -3,7 +3,7 @@ import "./styles.css";
 import Utils from '../../../../lib/utils';
 import ButtonPrimary from '../../../../components/button-primary';
 import ButtonSecondary from '../../../../components/button-secondary';
-import { del } from '../../../../services/functionalities.services';
+import { del } from '../../../../services/tasks.services';
 class LocalComponent extends React.Component {
 
     constructor(props) {
@@ -88,7 +88,7 @@ class LocalComponent extends React.Component {
                         maxLength: 30,
                     }
                 },
-                projectId: {
+                functionalityId: {
                     value: undefined,
                     errors: [],
                     schema: {
@@ -120,7 +120,7 @@ class LocalComponent extends React.Component {
         data.description.value = dataFirst.description;
         data.createdAt.value = dataFirst.createdAt;
         data.status.value = dataFirst.status;
-        data.projectId.value = dataFirst.projectId;
+        data.functionalityId.value = dataFirst.functionalityId;
         this.updateState({ data , isFormValid: true });
     }
 
@@ -180,7 +180,7 @@ class LocalComponent extends React.Component {
         const { data, isFormValid } = this.state;
         if (isFormValid === true && isValid === true) {
             this.updateState({ loading: true, errorMessage: undefined, successMessage: undefined });
-            del(data.id.value, data.projectId.value)
+            del(data.id.value, data.functionalityId.value)
                 .then(response => {
                     console.log(response);
                     this.updateState({

@@ -9,6 +9,8 @@ import AuthRegisterView from '../src/views/auth/register';
 
 import ProjectsView from '../src/views/projects/view';
 import FunctionalitiesView from '../src/views/functionalities/view';
+import TasksView from '../src/views/tasks/view';
+import LogsView from '../src/views/record-logs/view';
 
 
 function App(props) {
@@ -88,6 +90,8 @@ function Inner(props) {
 
       <Route exact path="/projects" element={<ProjectsView {...props} location={useLocation()} navigate={useNavigate()}></ProjectsView>} />
       <Route exact path="/functionalities" element={<FunctionalitiesView {...props} location={useLocation()} navigate={useNavigate()}></FunctionalitiesView>} />
+      <Route exact path="/tasks" element={<TasksView {...props} location={useLocation()} navigate={useNavigate()}></TasksView>} />
+      <Route exact path="/logs" element={<LogsView {...props} location={useLocation()} navigate={useNavigate()}></LogsView>} />
 
       <Route path="*" element={<Navigate to={"/auth/login"} replace></Navigate>} />
     </Routes>

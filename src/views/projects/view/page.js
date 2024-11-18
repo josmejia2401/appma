@@ -7,6 +7,7 @@ import Utils from '../../../lib/utils';
 import { filter } from '../../../services/projects.services';
 import { buildAndGetClassStatus, findStatusById } from '../../../lib/list-values';
 import ButtonIcon from '../../../components/button-icon';
+import { formatDateToView, formatTextToView } from '../../../lib/format';
 
 
 
@@ -29,8 +30,8 @@ class Page extends React.Component {
         this.sortTableByColumn = this.sortTableByColumn.bind(this);
 
 
-        this.checkViewDeleteAction = this.checkViewDeleteAction.bind(this);
-        this.checkViewEditAction = this.checkViewEditAction.bind(this);
+        this.goToFunctionalities = this.goToFunctionalities.bind(this);
+
     }
 
 
@@ -170,16 +171,6 @@ class Page extends React.Component {
         }
     }
 
-    checkViewDeleteAction(status) {
-        const key = findStatusById(status).id;
-        return [1, 2, 3].includes(key);
-    }
-
-    checkViewEditAction(status) {
-        const key = findStatusById(status).id;
-        return [1, 2].includes(key);
-    }
-
     sortTableByColumn(columnName) {
         switch (columnName) {
             case 'name':
@@ -216,6 +207,10 @@ class Page extends React.Component {
             dataFiltered: this.state.dataFiltered,
             filterType: !this.state.filterType
         });
+    }
+
+    goToFunctionalities(item) {
+        this.props.navigate(`/functionalities?projectId=${item.id}`);
     }
 
     render() {
@@ -296,17 +291,21 @@ class Page extends React.Component {
                                                 {!this.state.loading && this.state.dataFiltered.length > 0 && this.state.dataFiltered.map((item, index) => {
                                                     return (<tr key={index}>
                                                         <td className="text-color">{item.name}</td>
-                                                        <td className="text-color">{item.description}</td>
+                                                        <td className="text-color">{formatTextToView(item.description)}</td>
                                                         <td><span className={buildAndGetClassStatus(item?.status)}>{findStatusById(item?.status).name}</span></td>
-                                                        <td className="text-color">{item.createdAt}</td>
+                                                        <td className="text-color">{formatDateToView(item.createdAt)}</td>
                                                         <td>
-                                                            {this.checkViewEditAction(item.status) && (<a href="#">
+                                                            <a href="#">
                                                                 <i className="fa-regular fa-pen-to-square primary-color" onClick={() => this.showDialog('edit', item)}></i>
-                                                            </a>)}
+                                                            </a>
 
-                                                            {this.checkViewDeleteAction(item?.status) && (<a href="#" style={{ marginLeft: '15px' }}>
+                                                            <a href="#" style={{ marginLeft: '15px' }}>
                                                                 <i className="fa-solid fa-trash primary-color" onClick={() => this.showDialog('remove', item)}></i>
-                                                            </a>)}
+                                                            </a>
+
+                                                            <a href="#" style={{ marginLeft: '15px' }}>
+                                                                <i className="fa-solid fa-cubes-stacked primary-color" onClick={() => this.goToFunctionalities(item)}></i>
+                                                            </a>
                                                         </td>
                                                     </tr>);
                                                 })}

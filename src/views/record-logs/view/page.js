@@ -3,9 +3,8 @@ import "./styles.css";
 import CreateComponent from '../components/create';
 import EditComponent from '../components/edit';
 import RemoveComponent from '../components/remove';
-import Utils from '../../../lib/utils';
-import { filter } from '../../../services/functionalities.services';
-import { buildAndGetClassStatus, findStatusById } from '../../../lib/list-values';
+import { find } from '../../../services/tasks.services';
+import { buildAndGetClassPhase, buildAndGetClassStatus, findPhaseById, findStatusById } from '../../../lib/list-values';
 import ButtonIcon from '../../../components/button-icon';
 import { formatDateToView, formatTextToView } from '../../../lib/format';
 
@@ -28,9 +27,6 @@ class Page extends React.Component {
         this.showDialog = this.showDialog.bind(this);
         this.hideDialog = this.hideDialog.bind(this);
         this.sortTableByColumn = this.sortTableByColumn.bind(this);
-
-        this.goToTasks = this.goToTasks.bind(this);
-
     }
 
 
@@ -48,8 +44,10 @@ class Page extends React.Component {
             isValidForm: false,
             thereIsMoreData: false,
             params: {
-                projectId: undefined
+                tasksId: undefined,
+                functionalityId: undefined
             },
+            task: {},
             data: [],
             dataFiltered: [],
             dataSelected: undefined,
@@ -78,27 +76,24 @@ class Page extends React.Component {
     loadData(e) {
         e?.preventDefault();
         e?.stopPropagation();
-        const projectId = new URLSearchParams(window.location.search).get("projectId");
+        const tasksId = new URLSearchParams(window.location.search).get("tasksId");
+        const functionalityId = new URLSearchParams(window.location.search).get("functionalityId");
         this.updateState({
             loading: true,
             params: {
-                projectId: projectId
+                tasksId: tasksId,
+                functionalityId: functionalityId
             }
         });
-        filter({
-            projectId: projectId,
-        }).then(result => {
-            result.results.sort((a, b) => (a.recordStatus > b.recordStatus) ? 1 : ((b.recordStatus > a.recordStatus) ? -1 : 0));
-            let thereIsMoreData = false;
-            if (!Utils.isEmpty(result.lastEvaluatedKey)) {
-                thereIsMoreData = true;
-            }
+        find(tasksId, functionalityId).then(result => {
+            result.logs.sort((a, b) => (a.status > b.status) ? 1 : ((b.status > a.status) ? -1 : 0));
             this.updateState({
-                data: result.results,
-                dataFiltered: result.results.map(clone => ({ ...clone })),
+                data: result.logs,
+                dataFiltered: result.logs.map(clone => ({ ...clone })),
+                task: result,
                 loading: false,
-                thereIsMoreData: thereIsMoreData,
-                lastEvaluatedKey: result.lastEvaluatedKey
+                thereIsMoreData: false,
+                lastEvaluatedKey: undefined
             });
         }).catch(err => {
             console.log(err.fileName, err);
@@ -110,20 +105,16 @@ class Page extends React.Component {
         e?.preventDefault();
         e?.stopPropagation();
         this.updateState({ loading: true });
-        filter(this.state.lastEvaluatedKey).then(result => {
-
-            let thereIsMoreData = false;
-            if (!Utils.isEmpty(result.lastEvaluatedKey)) {
-                thereIsMoreData = true;
-            }
-            this.state.data.push(...result.results);
-            this.state.dataFiltered.push(...result.results);
+        find(this.state.params.tasksId, this.state.params.functionalityId).then(result => {
+            this.state.data.push(...result.logs);
+            this.state.dataFiltered.push(...result.logs);
             this.updateState({
                 data: this.state.data,
                 dataFiltered: this.state.dataFiltered,
+                task: result,
                 loading: false,
-                thereIsMoreData: thereIsMoreData,
-                lastEvaluatedKey: result.lastEvaluatedKey
+                thereIsMoreData: false,
+                lastEvaluatedKey: undefined
             });
         }).catch(err => {
             console.log(err.fileName, err);
@@ -132,7 +123,12 @@ class Page extends React.Component {
     }
 
     showDialog(key, item = null) {
-        this.updateState({ dataSelected: item });
+        this.updateState({
+            dataSelected: {
+                data: item,
+                task: this.state.task
+            }
+        });
         setTimeout(() => {
             Object.keys(this.state.dialog).forEach(p => {
                 this.state.dialog[p] = false;
@@ -183,12 +179,21 @@ class Page extends React.Component {
 
     sortTableByColumn(columnName) {
         switch (columnName) {
-            case 'name':
+            case 'deltaTime':
                 this.state.dataFiltered.sort((a, b) => {
                     if (this.state.filterType === true) {
-                        return (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0);
+                        return (a.deltaTime > b.deltaTime) ? 1 : ((b.deltaTime > a.deltaTime) ? -1 : 0);
                     } else {
-                        return (a.name < b.name) ? 1 : ((b.name < a.name) ? -1 : 0)
+                        return (a.deltaTime < b.deltaTime) ? 1 : ((b.deltaTime < a.deltaTime) ? -1 : 0)
+                    }
+                });
+                break;
+            case 'interruptionTime':
+                this.state.dataFiltered.sort((a, b) => {
+                    if (this.state.filterType === true) {
+                        return (a.interruptionTime > b.interruptionTime) ? 1 : ((b.interruptionTime > a.interruptionTime) ? -1 : 0);
+                    } else {
+                        return (a.interruptionTime < b.interruptionTime) ? 1 : ((b.interruptionTime < a.interruptionTime) ? -1 : 0)
                     }
                 });
                 break;
@@ -201,12 +206,21 @@ class Page extends React.Component {
                     }
                 });
                 break;
-            case 'createdAt':
+            case 'startDate':
                 this.state.dataFiltered.sort((a, b) => {
                     if (this.state.filterType === true) {
-                        return (a.createdAt > b.createdAt) ? 1 : ((b.createdAt > a.createdAt) ? -1 : 0);
+                        return (a.startDate > b.startDate) ? 1 : ((b.startDate > a.startDate) ? -1 : 0);
                     } else {
-                        return (a.createdAt < b.createdAt) ? 1 : ((b.createdAt < a.createdAt) ? -1 : 0)
+                        return (a.startDate < b.startDate) ? 1 : ((b.startDate < a.startDate) ? -1 : 0)
+                    }
+                });
+                break;
+            case 'endDate':
+                this.state.dataFiltered.sort((a, b) => {
+                    if (this.state.filterType === true) {
+                        return (a.endDate > b.endDate) ? 1 : ((b.endDate > a.endDate) ? -1 : 0);
+                    } else {
+                        return (a.endDate < b.endDate) ? 1 : ((b.endDate < a.endDate) ? -1 : 0)
                     }
                 });
                 break;
@@ -219,10 +233,6 @@ class Page extends React.Component {
         });
     }
 
-    goToTasks(item) {
-        this.props.navigate(`/tasks?functionalityId=${item.id}`);
-    }
-
     render() {
         return (
             <div className="col py-1 panel-view">
@@ -233,7 +243,7 @@ class Page extends React.Component {
                         <div className="col-12">
                             <div className="card">
                                 <div className="card-header">
-                                    <h4 className="card-title title-color">Listado de funcionalidades</h4>
+                                    <h4 className="card-title title-color">Listado de logs</h4>
 
                                     <div className='btn-create-customer'>
                                         <ButtonIcon type="button"
@@ -242,7 +252,7 @@ class Page extends React.Component {
                                             <i className="fa-solid fa-rotate-right"></i>
                                         </ButtonIcon>
 
-                                        {this.state.params.projectId && <ButtonIcon type="button"
+                                        {this.state.params.tasksId && this.state.params.functionalityId && <ButtonIcon type="button"
                                             className="btn icon btn-primary-custom btn-create-customer"
                                             style={{ marginLeft: '5px' }}
                                             onClick={() => this.showDialog('create')}>
@@ -258,7 +268,7 @@ class Page extends React.Component {
                                         <table className="table table-hover mb-0">
                                             <thead>
                                                 <tr>
-                                                    <th colSpan={5}>
+                                                    <th colSpan={8}>
                                                         <input
                                                             placeholder='Buscar...'
                                                             type="text"
@@ -272,17 +282,20 @@ class Page extends React.Component {
                                                     </th>
                                                 </tr>
                                                 <tr>
-                                                    <th><b>Nombre</b><i className="fa fa-fw fa-sort" onClick={() => this.sortTableByColumn('name')}></i></th>
-                                                    <th>Descripción</th>
+                                                    <th><b>Fecha inicial</b><i className="fa fa-fw fa-sort" onClick={() => this.sortTableByColumn('startDate')}></i></th>
+                                                    <th><b>Fecha final</b><i className="fa fa-fw fa-sort" onClick={() => this.sortTableByColumn('endDate')}></i></th>
+                                                    <th><b>Interrupción</b><i className="fa fa-fw fa-sort" onClick={() => this.sortTableByColumn('interruptionTime')}></i></th>
+                                                    <th><b>Delta</b><i className="fa fa-fw fa-sort" onClick={() => this.sortTableByColumn('deltaTime')}></i></th>
+                                                    <th><b>Fase</b> <i className="fa fa-fw fa-sort" onClick={() => this.sortTableByColumn('phase')}></i></th>
                                                     <th><b>Estado</b> <i className="fa fa-fw fa-sort" onClick={() => this.sortTableByColumn('status')}></i></th>
-                                                    <th><b>Creación</b> <i className="fa fa-fw fa-sort" onClick={() => this.sortTableByColumn('createdAt')}></i></th>
+                                                    <th><b>Comentarios</b> <i className="fa fa-fw fa-sort" onClick={() => this.sortTableByColumn('createdAt')}></i></th>
                                                     <th>Acción</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
 
                                                 {this.state.loading && (<tr>
-                                                    <td className="text-color" colSpan={5}>
+                                                    <td className="text-color" colSpan={8}>
                                                         <div className="skeleton-panel">
                                                             <div className="skeleton-line" />
                                                             <div className="skeleton-line" />
@@ -292,7 +305,7 @@ class Page extends React.Component {
                                                 </tr>)}
 
                                                 {!this.state.loading && this.state.dataFiltered.length === 0 && (<tr>
-                                                    <td className="text-color" colSpan={5}>
+                                                    <td className="text-color" colSpan={8}>
                                                         <i className="fa-solid fa-circle-exclamation no-found-icon"></i>
                                                         <h1 className="no-found-text">No hay datos</h1>
                                                     </td>
@@ -300,20 +313,19 @@ class Page extends React.Component {
 
                                                 {!this.state.loading && this.state.dataFiltered.length > 0 && this.state.dataFiltered.map((item, index) => {
                                                     return (<tr key={index}>
-                                                        <td className="text-color">{item.name}</td>
-                                                        <td className="text-color">{formatTextToView(item.description)}</td>                                                        <td><span className={buildAndGetClassStatus(item?.status)}>{findStatusById(item?.status).name}</span></td>
-                                                        <td className="text-color">{formatDateToView(item.createdAt)}</td>
+                                                        <td className="text-color">{formatDateToView(item.startDate)}</td>
+                                                        <td className="text-color">{formatDateToView(item.endDate)}</td>
+                                                        <td className="text-color">{item.interruptionTime}</td>
+                                                        <td className="text-color">{item.deltaTime}</td>
+                                                        <td><span className={buildAndGetClassPhase(item?.phase)}>{findPhaseById(item?.phase).name}</span></td>
+                                                        <td><span className={buildAndGetClassStatus(item?.status)}>{findStatusById(item?.status).name}</span></td>
+                                                        <td className="text-color">{formatTextToView(item.comments)}</td>
                                                         <td>
                                                             <a href="#">
                                                                 <i className="fa-regular fa-pen-to-square primary-color" onClick={() => this.showDialog('edit', item)}></i>
                                                             </a>
-
                                                             <a href="#" style={{ marginLeft: '15px' }}>
                                                                 <i className="fa-solid fa-trash primary-color" onClick={() => this.showDialog('remove', item)}></i>
-                                                            </a>
-
-                                                            <a href="#" style={{ marginLeft: '15px' }}>
-                                                                <i className="fa-solid fa-list-check primary-color" onClick={() => this.goToTasks(item)}></i>
                                                             </a>
                                                         </td>
                                                     </tr>);
@@ -322,7 +334,7 @@ class Page extends React.Component {
 
                                             {!this.state.loading && this.state.thereIsMoreData && <tfoot>
                                                 <tr>
-                                                    <td colSpan={5}>
+                                                    <td colSpan={8}>
                                                         <a
                                                             href="#"
                                                             className='center-text'

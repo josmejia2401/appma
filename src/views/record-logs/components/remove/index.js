@@ -3,7 +3,9 @@ import "./styles.css";
 import Utils from '../../../../lib/utils';
 import ButtonPrimary from '../../../../components/button-primary';
 import ButtonSecondary from '../../../../components/button-secondary';
-import { del } from '../../../../services/functionalities.services';
+import { phase, status } from '../../../../lib/list-values';
+import { update } from '../../../../services/tasks.services';
+
 class LocalComponent extends React.Component {
 
     constructor(props) {
@@ -19,6 +21,10 @@ class LocalComponent extends React.Component {
 
         //own
         this.handleSubmit = this.handleSubmit.bind(this);
+        this.buildAndGetStatus = this.buildAndGetStatus.bind(this);
+        this.buildAndGetPhase = this.buildAndGetPhase.bind(this);
+
+
     }
 
 
@@ -37,6 +43,10 @@ class LocalComponent extends React.Component {
             isFormValid: false,
             errorMessage: undefined,
             successMessage: undefined,
+            task: {
+                taskId: undefined,
+                functionalityId: undefined
+            },
             data: {
                 id: {
                     value: '',
@@ -48,22 +58,52 @@ class LocalComponent extends React.Component {
                         maxLength: 100,
                     }
                 },
-                name: {
+                comments: {
                     value: '',
                     errors: [],
                     schema: {
-                        name: 'Nombre del proyecto',
-                        required: true,
+                        comments: 'Comentario',
+                        required: false,
                         minLength: 1,
                         maxLength: 100,
                     }
                 },
-                description: {
+                startDate: {
                     value: '',
                     errors: [],
                     schema: {
-                        name: 'Descripción',
-                        required: false,
+                        name: 'Fecha inicial',
+                        required: true,
+                        minLength: 0,
+                        maxLength: 1000,
+                    }
+                },
+                endDate: {
+                    value: '',
+                    errors: [],
+                    schema: {
+                        name: 'Fecha final',
+                        required: true,
+                        minLength: 0,
+                        maxLength: 1000,
+                    }
+                },
+                interruptionTime: {
+                    value: '',
+                    errors: [],
+                    schema: {
+                        name: 'Tiempo de interrupción',
+                        required: true,
+                        minLength: 0,
+                        maxLength: 1000,
+                    }
+                },
+                deltaTime: {
+                    value: '',
+                    errors: [],
+                    schema: {
+                        name: 'Delta',
+                        required: true,
                         minLength: 0,
                         maxLength: 1000,
                     }
@@ -88,11 +128,11 @@ class LocalComponent extends React.Component {
                         maxLength: 30,
                     }
                 },
-                projectId: {
+                phase: {
                     value: undefined,
                     errors: [],
                     schema: {
-                        name: 'ID del proyecto',
+                        name: 'ID de la fase',
                         required: false,
                         minLength: 0,
                         maxLength: 30,
@@ -114,14 +154,21 @@ class LocalComponent extends React.Component {
         if (Utils.isEmpty(dataFirst)) {
             return;
         }
-        const { data } = this.state;
-        data.id.value = dataFirst.id;
-        data.name.value = dataFirst.name;
-        data.description.value = dataFirst.description;
-        data.createdAt.value = dataFirst.createdAt;
-        data.status.value = dataFirst.status;
-        data.projectId.value = dataFirst.projectId;
-        this.updateState({ data , isFormValid: true });
+        const { data, task } = this.state;
+
+        task.functionalityId = dataFirst.task.functionalityId;
+        task.taskId = dataFirst.task.id;
+
+        data.id.value = dataFirst.data?.id;
+        data.comments.value = dataFirst.data?.comments;
+        data.startDate.value = dataFirst.data?.startDate;
+        data.endDate.value = dataFirst.data?.endDate;
+        data.interruptionTime.value = dataFirst.data?.interruptionTime || 0;
+        data.deltaTime.value = dataFirst.data?.deltaTime || 0;
+        data.status.value = dataFirst.data?.status || 1;
+        data.phase.value = dataFirst.data?.phase || 1;
+
+        this.updateState({ data, task, isFormValid: true });
     }
 
     loadData(e) { }
@@ -170,6 +217,14 @@ class LocalComponent extends React.Component {
         this.setState({ ...payload }, () => this.propagateState());
     }
 
+    buildAndGetStatus() {
+        return status;
+    }
+
+    buildAndGetPhase() {
+        return phase;
+    }
+
     handleSubmit(event) {
         if (event) {
             event.preventDefault();
@@ -177,10 +232,24 @@ class LocalComponent extends React.Component {
         }
         const form = event.target;
         const isValid = form.checkValidity();
-        const { data, isFormValid } = this.state;
+        const { data, isFormValid, task } = this.state;
         if (isFormValid === true && isValid === true) {
             this.updateState({ loading: true, errorMessage: undefined, successMessage: undefined });
-            del(data.id.value, data.projectId.value)
+            update(task.taskId, {
+                functionalityId: task.functionalityId,
+                logs: {
+                    deleteItem: {
+                        id: data.id.value,
+                        comments: data.comments.value,
+                        startDate: data.startDate.value,
+                        endDate: data.endDate.value,
+                        interruptionTime: data.interruptionTime.value,
+                        deltaTime: data.deltaTime.value,
+                        status: data.status.value,
+                        phase: data.phase.value,
+                    }
+                }
+            })
                 .then(response => {
                     console.log(response);
                     this.updateState({
@@ -199,6 +268,7 @@ class LocalComponent extends React.Component {
         }
         form.classList.add('was-validated');
     }
+
 
     render() {
         return (
@@ -249,24 +319,24 @@ class LocalComponent extends React.Component {
                                                         <div className="row">
                                                             <div className="col-12 col-md-12">
                                                                 <div className="form-group mandatory">
-                                                                    <label htmlFor="name" className="form-label">Nombre</label>
+                                                                    <label htmlFor="comments" className="form-label">Comentarios</label>
                                                                     <input
                                                                         type="text"
-                                                                        id="name"
+                                                                        id="comments"
                                                                         className="form-control"
-                                                                        name="name"
-                                                                        required={true}
-                                                                        value={this.state.data.name.value}
-                                                                        onChange={(event) => this.setChangeInputEvent('name', event)}
+                                                                        name="comments"
+                                                                        required={false}
+                                                                        value={this.state.data.comments.value}
+                                                                        onChange={(event) => this.setChangeInputEvent('comments', event)}
                                                                         disabled={true}
                                                                         autoComplete='off'
                                                                     />
                                                                     <div
                                                                         className="invalid-feedback"
                                                                         style={{
-                                                                            display: this.state.data.name.errors.length > 0 ? 'block' : 'none'
+                                                                            display: this.state.data.comments.errors.length > 0 ? 'block' : 'none'
                                                                         }}>
-                                                                        {this.state.data.name.errors[0]}
+                                                                        {this.state.data.comments.errors[0]}
                                                                     </div>
                                                                 </div>
                                                             </div>

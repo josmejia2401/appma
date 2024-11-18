@@ -4,7 +4,7 @@ import CreateComponent from '../components/create';
 import EditComponent from '../components/edit';
 import RemoveComponent from '../components/remove';
 import Utils from '../../../lib/utils';
-import { filter } from '../../../services/functionalities.services';
+import { filter } from '../../../services/tasks.services';
 import { buildAndGetClassStatus, findStatusById } from '../../../lib/list-values';
 import ButtonIcon from '../../../components/button-icon';
 import { formatDateToView, formatTextToView } from '../../../lib/format';
@@ -29,8 +29,7 @@ class Page extends React.Component {
         this.hideDialog = this.hideDialog.bind(this);
         this.sortTableByColumn = this.sortTableByColumn.bind(this);
 
-        this.goToTasks = this.goToTasks.bind(this);
-
+        this.goToLogs = this.goToLogs.bind(this);
     }
 
 
@@ -48,7 +47,7 @@ class Page extends React.Component {
             isValidForm: false,
             thereIsMoreData: false,
             params: {
-                projectId: undefined
+                functionalityId: undefined
             },
             data: [],
             dataFiltered: [],
@@ -78,15 +77,15 @@ class Page extends React.Component {
     loadData(e) {
         e?.preventDefault();
         e?.stopPropagation();
-        const projectId = new URLSearchParams(window.location.search).get("projectId");
+        const functionalityId = new URLSearchParams(window.location.search).get("functionalityId");
         this.updateState({
             loading: true,
             params: {
-                projectId: projectId
+                functionalityId: functionalityId
             }
         });
         filter({
-            projectId: projectId,
+            functionalityId: functionalityId,
         }).then(result => {
             result.results.sort((a, b) => (a.recordStatus > b.recordStatus) ? 1 : ((b.recordStatus > a.recordStatus) ? -1 : 0));
             let thereIsMoreData = false;
@@ -219,8 +218,9 @@ class Page extends React.Component {
         });
     }
 
-    goToTasks(item) {
-        this.props.navigate(`/tasks?functionalityId=${item.id}`);
+
+    goToLogs(item) {
+        this.props.navigate(`/logs?tasksId=${item.id}&&functionalityId=${item.functionalityId}`);
     }
 
     render() {
@@ -233,7 +233,7 @@ class Page extends React.Component {
                         <div className="col-12">
                             <div className="card">
                                 <div className="card-header">
-                                    <h4 className="card-title title-color">Listado de funcionalidades</h4>
+                                    <h4 className="card-title title-color">Listado de tareas</h4>
 
                                     <div className='btn-create-customer'>
                                         <ButtonIcon type="button"
@@ -242,7 +242,7 @@ class Page extends React.Component {
                                             <i className="fa-solid fa-rotate-right"></i>
                                         </ButtonIcon>
 
-                                        {this.state.params.projectId && <ButtonIcon type="button"
+                                        {this.state.params.functionalityId && <ButtonIcon type="button"
                                             className="btn icon btn-primary-custom btn-create-customer"
                                             style={{ marginLeft: '5px' }}
                                             onClick={() => this.showDialog('create')}>
@@ -301,7 +301,8 @@ class Page extends React.Component {
                                                 {!this.state.loading && this.state.dataFiltered.length > 0 && this.state.dataFiltered.map((item, index) => {
                                                     return (<tr key={index}>
                                                         <td className="text-color">{item.name}</td>
-                                                        <td className="text-color">{formatTextToView(item.description)}</td>                                                        <td><span className={buildAndGetClassStatus(item?.status)}>{findStatusById(item?.status).name}</span></td>
+                                                        <td className="text-color">{formatTextToView(item.description)}</td>
+                                                        <td><span className={buildAndGetClassStatus(item?.status)}>{findStatusById(item?.status).name}</span></td>
                                                         <td className="text-color">{formatDateToView(item.createdAt)}</td>
                                                         <td>
                                                             <a href="#">
@@ -313,7 +314,7 @@ class Page extends React.Component {
                                                             </a>
 
                                                             <a href="#" style={{ marginLeft: '15px' }}>
-                                                                <i className="fa-solid fa-list-check primary-color" onClick={() => this.goToTasks(item)}></i>
+                                                                <i className="a-brands fa-slack primary-color" onClick={() => this.goToLogs(item)}></i>
                                                             </a>
                                                         </td>
                                                     </tr>);

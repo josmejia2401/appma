@@ -22,7 +22,7 @@ export const documentTypes = [
 ];
 
 export function findDocumentTypeById(id) {
-    return documentTypes.filter(p => p.id === Number(id || 0))[0] || { id: 0, name: " "};
+    return documentTypes.filter(p => p.id === Number(id || 0))[0] || { id: 0, name: " " };
 }
 
 
@@ -39,11 +39,61 @@ export const status = [
 ];
 
 export function findStatusById(id) {
-    return status.filter(p => p.id === Number(id|| 0))[0] || { id: 0, name: " "};
+    return status.filter(p => p.id === Number(id || 0))[0] || { id: 0, name: " " };
 }
 
 export function buildAndGetClassStatus(recordStatus) {
     const key = findStatusById(recordStatus).id;
+    switch (key) {
+        case 1:
+            return "badge bg-success";
+        case 2:
+            return "badge bg-secondary";
+        case 3:
+            return "badge bg-warning";
+        case 4:
+            return "badge bg-danger";
+        default:
+            break;
+    }
+    return null;
+}
+
+
+
+export const phase = [
+    {
+        id: 1,
+        name: 'ANÁLISIS'
+    },
+    {
+        id: 2,
+        name: 'DISEÑO'
+    },
+    {
+        id: 3,
+        name: 'DESARROLLO'
+    },
+    {
+        id: 4,
+        name: 'PRUEBAS'
+    },
+    {
+        id: 5,
+        name: 'IMPLEMENTACIÓN'
+    },
+    {
+        id: 6,
+        name: 'MANTENIMIENTO'
+    }
+];
+
+export function findPhaseById(id) {
+    return phase.filter(p => p.id === Number(id || 0))[0] || { id: 0, name: " " };
+}
+
+export function buildAndGetClassPhase(recordStatus) {
+    const key = findPhaseById(recordStatus).id;
     switch (key) {
         case 1:
             return "badge bg-success";
