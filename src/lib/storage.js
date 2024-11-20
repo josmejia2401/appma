@@ -1,21 +1,26 @@
-export default class Storage {
+import Observable from "./observable";
+
+class Storage extends Observable {
 
     static PREFIX = "PSPC_";
 
-    static set(key, value) {
+    set(key, value) {
         window.localStorage.setItem(`${Storage.PREFIX}${key}`, value);
     }
 
-    static get(key) {
+    get(key) {
         return localStorage.getItem(`${Storage.PREFIX}${key}`);
     }
 
-    static remove(key) {
+    remove(key) {
         return localStorage.removeItem(`${Storage.PREFIX}${key}`);
     }
 
-    static clear() {
+    clear() {
         localStorage.clear();
         sessionStorage.clear();
     }
 }
+
+const storage = new Storage();
+export default storage;

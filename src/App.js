@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate, Link, useLocation, us
 //import logo from './logo.svg';
 import './App.css';
 import { isAuthenticated } from "./lib/auth";
+import storage from "./lib/storage";
 
 import AuthLoginView from '../src/views/auth/login';
 import AuthRegisterView from '../src/views/auth/register';
@@ -13,9 +14,39 @@ import TasksView from '../src/views/tasks/view';
 import LogsView from '../src/views/record-logs/view';
 
 
+
+
 function App(props) {
   const [preloader, setPreloader] = React.useState(true);
   const [currentPathName, setCurrentPathName] = React.useState(null);
+  const [isAuthenticatedValue, setIsAuthenticatedValue] = React.useState(false);
+
+  const refreshPage = () => {
+    const exists = [currentPathName || "", window.location.pathname]
+      .filter(p => p.includes("auth"))[0];
+    if (!exists) {
+      storage.clear();
+      window.location.replace("/");
+    }
+  }
+
+  const validateStatus = () => {
+    setCurrentPathName(window.location.pathname);
+    if (isAuthenticatedValue !== isAuthenticated()) {
+      setIsAuthenticatedValue(isAuthenticated());
+    }
+    if (isAuthenticated() === false) {
+      refreshPage();
+    }
+  }
+
+  const checkDocumentState = () => {
+    if (document.readyState === "complete") {
+      setPreloader(false);
+    } else {
+      window.addEventListener('load', () => setPreloader(false));
+    }
+  }
 
   const handleClickOpenNav = (event) => {
     if (event) {
@@ -26,13 +57,12 @@ function App(props) {
     }
   }
   React.useEffect(() => {
-    setCurrentPathName(window.location.pathname);
-    if (document.readyState === "complete") {
-      setPreloader(false);
-    } else {
-      window.addEventListener('load', () => setPreloader(false));
-      return () => document.removeEventListener('load', () => setPreloader(false));
-    }
+    const timeoutId = setInterval(() => validateStatus(), 1000);
+    return () => clearInterval(timeoutId);
+  }, []);
+  React.useEffect(() => {
+    checkDocumentState();
+    return () => document.removeEventListener('load', () => setPreloader(false));
   }, []);
   return (
     <Router>
@@ -43,7 +73,7 @@ function App(props) {
           </div>
         </div>}
 
-        {isAuthenticated() && <nav className="navbar navbar-expand-lg navbar-light fixed-top shadow-sm" id="mainNav">
+        {isAuthenticatedValue && <nav className="navbar navbar-expand-lg navbar-light fixed-top shadow-sm" id="mainNav">
           <div className="container px-5">
             <Link className="navbar-brand fw-bold">AppMa</Link>
             <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation"
