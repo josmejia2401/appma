@@ -3,7 +3,7 @@ import "./styles.css";
 import Utils from '../../../../lib/utils';
 import ButtonPrimary from '../../../../components/button-primary';
 import ButtonSecondary from '../../../../components/button-secondary';
-import { status } from '../../../../lib/list-values';
+import { languages, status, technologies } from '../../../../lib/list-values';
 import { update } from '../../../../services/functionalities.services';
 
 class LocalComponent extends React.Component {
@@ -101,7 +101,27 @@ class LocalComponent extends React.Component {
                         minLength: 0,
                         maxLength: 30,
                     }
-                }
+                },
+                languages: {
+                    value: [],
+                    errors: [],
+                    schema: {
+                        name: 'Lenguajes',
+                        required: true,
+                        minLength: 0,
+                        maxLength: 9,
+                    }
+                },
+                technologies: {
+                    value: [],
+                    errors: [],
+                    schema: {
+                        name: 'Tecnologías',
+                        required: true,
+                        minLength: 0,
+                        maxLength: 9,
+                    }
+                },
             },
         };
     }
@@ -125,6 +145,8 @@ class LocalComponent extends React.Component {
         data.createdAt.value = dataFirst.createdAt;
         data.status.value = dataFirst.status;
         data.projectId.value = dataFirst.projectId;
+        data.technologies.value = dataFirst.technologies?.map(p => p.id) || [];
+        data.languages.value = dataFirst.languages?.map(p => p.id) || [];
         this.updateState({ data });
     }
 
@@ -163,7 +185,12 @@ class LocalComponent extends React.Component {
 
     setChangeInputEvent(key, event) {
         const { data } = this.state;
-        data[key].value = event.target.value;
+        if (key === 'languages' || key === 'technologies') {
+            const value = Array.from(event.target.selectedOptions, option => option.value);
+            data[key].value = value;
+        } else {
+            data[key].value = event.target.value;
+        }
         this.updateState({ data: data });
         this.validateForm(key);
     }
@@ -193,7 +220,9 @@ class LocalComponent extends React.Component {
                     name: data.name.value,
                     description: data.description.value,
                     status: data.status.value,
-                    projectId: data.projectId.value
+                    projectId: data.projectId.value,
+                    technologies: this.state.data.technologies.value.map(p => ({ id: p })),
+                    languages: this.state.data.languages.value.map(p => ({ id: p }))
                 })
                 .then(response => {
                     console.log(response);
@@ -309,6 +338,67 @@ class LocalComponent extends React.Component {
                                                                 </div>
                                                             </div>
                                                         </div>
+
+
+                                                        <div className="row mb-2">
+                                                            <div className="col-12 col-md-6">
+                                                                <div className="form-group mandatory required">
+                                                                    <label htmlFor="languages" className="form-label control-label">Lenguajes</label>
+                                                                    <select
+                                                                        className="form-select"
+                                                                        id="languages"
+                                                                        name='languages'
+                                                                        value={this.state.data.languages.value}
+                                                                        required={true}
+                                                                        multiple={true}
+                                                                        onChange={(event) => this.setChangeInputEvent('languages', event)}
+                                                                        disabled={this.state.loading || this.state.isSuccessfullyCreation}>
+                                                                        <option value={null}>Seleccionar...</option>
+                                                                        {languages.map((item, index) => {
+                                                                            return (<option value={item.id} key={index}>{item.name}</option>);
+                                                                        })}
+                                                                    </select>
+
+                                                                    <div
+                                                                        className="invalid-feedback"
+                                                                        style={{
+                                                                            display: this.state.data.languages.errors.length > 0 ? 'block' : 'none'
+                                                                        }}>
+                                                                        {this.state.data.languages.errors[0]}
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+                                                            <div className="col-12 col-md-6">
+                                                                <div className="form-group mandatory required">
+                                                                    <label htmlFor="technologies" className="form-label control-label">Lenguaje</label>
+
+                                                                    <select
+                                                                        className="form-select"
+                                                                        id="technologies"
+                                                                        name='technologies'
+                                                                        value={this.state.data.technologies.value}
+                                                                        required={true}
+                                                                        multiple={true}
+                                                                        onChange={(event) => this.setChangeInputEvent('technologies', event)}
+                                                                        disabled={this.state.loading || this.state.isSuccessfullyCreation}>
+                                                                        <option value={null}>Seleccionar...</option>
+                                                                        {technologies.map((item, index) => {
+                                                                            return (<option value={item.id} key={index}>{item.name}</option>);
+                                                                        })}
+                                                                    </select>
+
+                                                                    <div
+                                                                        className="invalid-feedback"
+                                                                        style={{
+                                                                            display: this.state.data.technologies.errors.length > 0 ? 'block' : 'none'
+                                                                        }}>
+                                                                        {this.state.data.technologies.errors[0]}
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
 
 
                                                         <div className="row">

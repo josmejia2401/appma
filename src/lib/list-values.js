@@ -35,6 +35,10 @@ export const status = [
     {
         id: 2,
         name: 'INACTIVO'
+    },
+    {
+        id: 3,
+        name: 'FINALIZADO'
     }
 ];
 
@@ -107,4 +111,135 @@ export function buildAndGetClassPhase(recordStatus) {
             break;
     }
     return null;
+}
+
+
+
+
+
+export const languages = [
+    {
+        id: 1,
+        name: 'Python'
+    },
+    {
+        id: 2,
+        name: 'JavaScript'
+    },
+    {
+        id: 3,
+        name: 'Java'
+    },
+    {
+        id: 4,
+        name: 'C'
+    },
+    {
+        id: 5,
+        name: 'C++'
+    },
+    {
+        id: 6,
+        name: 'C#'
+    },
+    {
+        id: 7,
+        name: 'TypeScript'
+    },
+    {
+        id: 8,
+        name: 'SQL'
+    },
+    {
+        id: 9,
+        name: 'Swift'
+    },
+    {
+        id: 10,
+        name: 'Go (Golang)'
+    },
+    {
+        id: 11,
+        name: 'PHP'
+    },
+    {
+        id: 12,
+        name: 'Rust'
+    },
+    {
+        id: 13,
+        name: 'Otro'
+    },
+    {
+        id: 99,
+        name: 'Ninguna'
+    }
+];
+
+export function findLanguagesById(id) {
+    return languages.filter(p => p.id === Number(id || 0))[0] || { id: 0, name: " " };
+}
+
+
+export const technologies = [
+    {
+        id: 1,
+        name: 'BD Relacional (MySQL, PostgreSQL, Etc)'
+    },
+    {
+        id: 2,
+        name: 'BD NoSql (MongoDB, DynamoDB, Etc)'
+    },
+    {
+        id: 3,
+        name: 'Redis'
+    },
+    {
+        id: 4,
+        name: 'Cloud (AWS, Azure, Etc)'
+    },
+    {
+        id: 5,
+        name: 'React'
+    },
+    {
+        id: 6,
+        name: 'Node.js'
+    },
+    {
+        id: 7,
+        name: 'Spring boot'
+    },
+    {
+        id: 8,
+        name: 'Flask'
+    },
+    {
+        id: 9,
+        name: 'Next.js'
+    },
+    {
+        id: 10,
+        name: 'Angular'
+    },
+    {
+        id: 11,
+        name: 'Django'
+    },
+    {
+        id: 12,
+        name: 'ASP.NET CORE'
+    },
+    {
+        id: 13,
+        name: 'Otro'
+    },
+    {
+        id: 99,
+        name: 'Ninguna'
+    }
+];
+
+export function findTechnologiesById(id) {
+    return technologies.filter(p => p.id === Number(id || 0))[0] || { id: 0, name: " " };
 }
