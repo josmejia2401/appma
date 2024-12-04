@@ -108,7 +108,7 @@ class LocalComponent extends React.Component {
         const value = data[key].value;
         data[key].errors = [];
         if (schema.required === true) {
-            if (value === undefined || value === null || value === '') {
+            if (value === undefined || value === null || value === '' || value.length === 0) {
                 data[key].errors.push(`${schema.name} es requerido.`);
             }
         }
