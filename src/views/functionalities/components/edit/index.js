@@ -179,6 +179,10 @@ class LocalComponent extends React.Component {
                 isFormValid = false;
                 break;
             }
+            if (data[key].schema.required && !data[key].value) {
+                isFormValid = false;
+                break;
+            }
         }
         this.updateState({ data: data, isFormValid: isFormValid });
     }

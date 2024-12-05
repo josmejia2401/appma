@@ -3,7 +3,7 @@ import "./styles.css";
 import Utils from '../../../../lib/utils';
 import ButtonPrimary from '../../../../components/button-primary';
 import ButtonSecondary from '../../../../components/button-secondary';
-import { status } from '../../../../lib/list-values';
+import { itemsType, status } from '../../../../lib/list-values';
 import { update } from '../../../../services/tasks.services';
 
 class LocalComponent extends React.Component {
@@ -101,6 +101,16 @@ class LocalComponent extends React.Component {
                         minLength: 0,
                         maxLength: 30,
                     }
+                },
+                itemType: {
+                    value: '',
+                    errors: [],
+                    schema: {
+                        name: 'Tipo de elemento',
+                        required: true,
+                        minLength: 0,
+                        maxLength: 1000,
+                    }
                 }
             },
         };
@@ -125,6 +135,7 @@ class LocalComponent extends React.Component {
         data.createdAt.value = dataFirst.createdAt;
         data.status.value = dataFirst.status;
         data.functionalityId.value = dataFirst.functionalityId;
+        data.itemType.value = dataFirst.itemType;
         this.updateState({ data });
     }
 
@@ -154,6 +165,10 @@ class LocalComponent extends React.Component {
         const keys = Object.keys(data);
         for (const key of keys) {
             if (data[key].errors.length !== 0) {
+                isFormValid = false;
+                break;
+            }
+            if (data[key].schema.required && !data[key].value) {
                 isFormValid = false;
                 break;
             }
@@ -193,7 +208,8 @@ class LocalComponent extends React.Component {
                     name: data.name.value,
                     description: data.description.value,
                     status: data.status.value,
-                    functionalityId: data.functionalityId.value
+                    functionalityId: data.functionalityId.value,
+                    itemType: data.itemType.value
                 })
                 .then(response => {
                     console.log(response);
@@ -258,7 +274,7 @@ class LocalComponent extends React.Component {
 
 
                                                         <div className="row">
-                                                            <div className="col-12 col-md-6">
+                                                            <div className="col-12 col-md-12">
                                                                 <div className="form-group mandatory required">
                                                                     <label htmlFor="name" className="form-label control-label">Nombre</label>
                                                                     <input
@@ -282,6 +298,10 @@ class LocalComponent extends React.Component {
                                                                     </div>
                                                                 </div>
                                                             </div>
+                                                        </div>
+
+
+                                                        <div className="row mb-2">
 
                                                             <div className="col-12 col-md-6">
                                                                 <div className="form-group mandatory required">
@@ -295,7 +315,7 @@ class LocalComponent extends React.Component {
                                                                         onChange={(event) => this.setChangeInputEvent('status', event)}
                                                                         disabled={this.state.loading || this.state.isSuccessfullyCreation}>
                                                                         <option value={null}>Seleccionar...</option>
-                                                                        {this.buildAndGetStatus().map((item, index) => {
+                                                                        {status.map((item, index) => {
                                                                             return (<option value={item.id} key={index}>{item.name}</option>);
                                                                         })}
                                                                     </select>
@@ -308,7 +328,34 @@ class LocalComponent extends React.Component {
                                                                     </div>
                                                                 </div>
                                                             </div>
+
+                                                            <div className="col-12 col-md-6">
+                                                                <div className="form-group mandatory required">
+                                                                    <label htmlFor="itemType" className="form-label control-label">Tipo</label>
+                                                                    <select
+                                                                        className="form-select"
+                                                                        id="itemType"
+                                                                        name='itemType'
+                                                                        value={this.state.data.itemType.value}
+                                                                        required={false}
+                                                                        onChange={(event) => this.setChangeInputEvent('itemType', event)}
+                                                                        disabled={this.state.loading || this.state.isSuccessfullyCreation}>
+                                                                        <option value={null}>Seleccionar...</option>
+                                                                        {itemsType.map((item, index) => {
+                                                                            return (<option value={item.id} key={index}>{item.name}</option>);
+                                                                        })}
+                                                                    </select>
+                                                                    <div
+                                                                        className="invalid-feedback"
+                                                                        style={{
+                                                                            display: this.state.data.itemType.errors.length > 0 ? 'block' : 'none'
+                                                                        }}>
+                                                                        {this.state.data.itemType.errors[0]}
+                                                                    </div>
+                                                                </div>
+                                                            </div>
                                                         </div>
+
 
 
                                                         <div className="row">

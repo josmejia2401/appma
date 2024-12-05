@@ -39,6 +39,10 @@ export const status = [
     {
         id: 3,
         name: 'FINALIZADO'
+    },
+    {
+        id: 4,
+        name: 'PENDIENTE'
     }
 ];
 
@@ -242,4 +246,29 @@ export const technologies = [
 
 export function findTechnologiesById(id) {
     return technologies.filter(p => p.id === Number(id || 0))[0] || { id: 0, name: " " };
+}
+
+
+
+export const itemsType = [
+    {
+        id: 1,
+        name: 'Bug'
+    },
+    {
+        id: 2,
+        name: 'Feature'
+    },
+    {
+        id: 3,
+        name: 'Issue'
+    },
+    {
+        id: 4,
+        name: 'Task'
+    }
+];
+
+export function findItemTypeById(id) {
+    return itemsType.filter(p => p.id === Number(id || 0))[0] || { id: 0, name: " " };
 }
