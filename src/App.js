@@ -13,6 +13,9 @@ import FunctionalitiesView from '../src/views/functionalities/view';
 import TasksView from '../src/views/tasks/view';
 import LogsView from '../src/views/record-logs/view';
 
+import ChatView from '../src/views/chats';
+
+
 
 
 
@@ -122,6 +125,8 @@ function Inner(props) {
       <Route exact path="/functionalities" element={<FunctionalitiesView {...props} location={useLocation()} navigate={useNavigate()}></FunctionalitiesView>} />
       <Route exact path="/tasks" element={<TasksView {...props} location={useLocation()} navigate={useNavigate()}></TasksView>} />
       <Route exact path="/logs" element={<LogsView {...props} location={useLocation()} navigate={useNavigate()}></LogsView>} />
+
+      <Route exact path="/chats" element={<ChatView {...props} location={useLocation()} navigate={useNavigate()}></ChatView>} />
 
       <Route path="*" element={<Navigate to={"/auth/login"} replace></Navigate>} />
     </Routes>
